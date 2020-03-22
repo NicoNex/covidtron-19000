@@ -1,0 +1,4 @@
+github.com/NicoNex/echotron v0.0.0-20200321213212-1ad1f6a7deb2 h1:XpNlp6nBg/bO+qJrv77t1AyWZZxUr4BiLTp0H6XMWak=
+github.com/NicoNex/echotron v0.0.0-20200321213212-1ad1f6a7deb2/go.mod h1:eaH7Vm9Ug2EOz6UV1GAwsHcUVIF2oORZENITeM5tTF8=
+github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
+github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
