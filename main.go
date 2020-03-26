@@ -96,26 +96,23 @@ func (b *bot) Update(update *echotron.Update) {
 }
 
 func sendIntroduction() {
-	msg := `
-	*Benvenuto in Covidtron-19000!*
+	b.SendMessageOptions(`*Benvenuto in Covidtron-19000!*
+*Comandi:*
+/start: visualizza questo messaggio
+/andamento: visualizza andamento nazionale
+/regione: visualizza andamento regione
+/provincia: visualizza andamento provincia
+/cancel: annulla l'operazione in corso
 
-	*Comandi:*
-	/start: visualizza questo messaggio
-	/andamento: visualizza andamento nazionale
-	/regione: visualizza andamento regione
-	/provincia: visualizza andamento provincia
-	/cancel: annulla l'operazione in corso
+Bot creato da @NicoNex e @Dj_Mike238.
+Basato su [echotron](https://github.com/NicoNex/echotron).
 
-	Bot creato da @NicoNex e @Dj_Mike238.
-	Basato su [echotron](https://github.com/NicoNex/echotron).
-
-	Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com)
-	`
-
-	b.SendMessageOptions(msg, b.chatId, echotron.PARSE_MARKDOWN | echotron.DISABLE_WEB_PAGE_PREVIEW)
+Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com)`,
+    b.chatId, echotron.PARSE_MARKDOWN | echotron.DISABLE_WEB_PAGE_PREVIEW)
 }
 
 func main() {
+    go updateData()
 	token, err := ioutil.ReadFile("./token")
 	if err != nil {
 		fmt.Println("error: could not find token file")
