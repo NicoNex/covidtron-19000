@@ -68,24 +68,34 @@ func getAndamento() Andamento {
 	return data
 }
 
-func getRegione(regione string) Regione {
+func getRegione(regione string) *Regione {
 	var data Regione
 
 	fpath := fmt.Sprintf("%s/regioni.json", JSON_PATH)
 	search := gojsonq.New().File(fpath).Where("denominazione_regione", "=", regione).First()
+	
+	if search == nil {
+		return nil
+	}
+
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
-	return data
+	return &data
 }
 
-func getProvincia(provincia string) Provincia {
+func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
 	fpath := fmt.Sprintf("%s/province.json", JSON_PATH)
 	search := gojsonq.New().File(fpath).Where("denominazione_provincia", "=", provincia).First()
+
+	if search == nil {
+		return nil
+	}
+
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
-	return data
+	return &data
 }
 
 func formatTimestamp(timestamp string) string {
@@ -141,7 +151,7 @@ func GetAndamentoMsg() string {
 func GetRegioneMsg(regione string) string {
 	data := getRegione(regione)
 
-	if data {
+	if data != nil {
 		msg := fmt.Sprintf(`
 		*Andamento COVID-19 - Regione %s*
 		_Ultimo aggiornamento: %s_
@@ -184,7 +194,7 @@ func GetRegioneMsg(regione string) string {
 func GetProvinciaMsg(provincia string) string {
 	data := getProvincia(provincia)
 
-	if data {
+	if data != nil {
 		msg := fmt.Sprintf(`
 		*Andamento COVID-19 - Provincia di %s (%s)*
 		_Ultimo aggiornamento: %s_
