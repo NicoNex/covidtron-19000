@@ -128,7 +128,8 @@ func GetAndamentoMsg() string {
 func GetRegioneMsg(regione string) string {
 	data := getRegione(regione)
 
-	msg := fmt.Sprintf(`
+	if data {
+		msg := fmt.Sprintf(`
 		*Andamento COVID-19 - Regione %s*
 		_Ultimo aggiornamento: %s_
 
@@ -155,19 +156,23 @@ func GetRegioneMsg(regione string) string {
 		data.TerapiaIntensiva,
 		data.IsolamentoDomiciliare,
 		data.TotaleOspedalizzati,
-	)
+		)
 
-	if data.NoteIt != "" {
-		msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+		if data.NoteIt != "" {
+			msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+		}
+
+		return msg
+	} else {
+		return "Errore: Regione non trovata."
 	}
-
-	return msg
 }
 
 func GetProvinciaMsg(provincia string) string {
 	data := getProvincia(provincia)
 
-	msg := fmt.Sprintf(`
+	if data {
+		msg := fmt.Sprintf(`
 		*Andamento COVID-19 - Provincia di %s (%s)*
 		_Ultimo aggiornamento: %s_
 
@@ -177,11 +182,14 @@ func GetProvinciaMsg(provincia string) string {
 		data.DenominazioneRegione,
 		formatTimestamp(data.Data),
 		data.TotaleCasi,
-	)
+		)
 
-	if data.NoteIt != "" {
-		msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+		if data.NoteIt != "" {
+			msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+		}
+
+		return msg
+	} else {
+		return "Errore: Provincia non trovata."
 	}
-
-	return msg
 }
