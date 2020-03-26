@@ -3,7 +3,7 @@
 * Copyright (C) 2020  Michele Dimaggio
 */
 
-package C19
+package c19
 
 import (
 	"io"
