@@ -10,6 +10,7 @@ import (
 	"os"
 	"fmt"
 	"log"
+	"time"
 	"bytes"
 	"encoding/json"
 
@@ -72,4 +73,115 @@ func getProvincia(provincia string) Provincia {
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
 	return data
+}
+
+func formatTimestamp(timestamp string) string {
+	timestamp = timestamp + "Z"
+
+	tp, err := time.Parse(time.RFC3339, timestamp)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return tp.Format("02/01/2006 15:04")
+}
+
+func GetAndamentoMsg() string {
+	data := getAndamento()
+
+	msg := fmt.Sprintf(`
+		*Andamento Nazionale COVID-19*
+		_Ultimo aggiornamento: %s_
+
+		Attualmente positivi: %d (+%d da ieri)
+		Guariti: %d
+		Deceduti: %d
+		Totale positivi: %d
+
+		Tamponi totali: %d
+		Ricoverati con sintomi: %d
+		In terapia intensiva: %d
+		In isolamento domiciliare: %d
+		Totale ospedalizzati: %d
+		`,
+		formatTimestamp(data.Data),
+		data.TotaleAttualmentePositivi,
+		data.NuoviAttualmentePositivi,
+		data.DimessiGuariti,
+		data.Deceduti,
+		data.TotaleCasi,
+		data.Tamponi,
+		data.RicoveratiConSintomi,
+		data.TerapiaIntensiva,
+		data.IsolamentoDomiciliare,
+		data.TotaleOspedalizzati,
+	)
+
+	if data.NoteIt != "" {
+		msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+	}
+
+	return msg
+}
+
+func GetRegioneMsg(regione string) string {
+	data := getRegione(regione)
+
+	msg := fmt.Sprintf(`
+		*Andamento COVID-19 - Regione %s*
+		_Ultimo aggiornamento: %s_
+
+		Attualmente positivi: %d (+%d da ieri)
+		Guariti: %d
+		Deceduti: %d
+		Totale positivi: %d
+
+		Tamponi totali: %d
+		Ricoverati con sintomi: %d
+		In terapia intensiva: %d
+		In isolamento domiciliare: %d
+		Totale ospedalizzati: %d
+		`,
+		data.DenominazioneRegione,
+		formatTimestamp(data.Data),
+		data.TotaleAttualmentePositivi,
+		data.NuoviAttualmentePositivi,
+		data.DimessiGuariti,
+		data.Deceduti,
+		data.TotaleCasi,
+		data.Tamponi,
+		data.RicoveratiConSintomi,
+		data.TerapiaIntensiva,
+		data.IsolamentoDomiciliare,
+		data.TotaleOspedalizzati,
+	)
+
+	if data.NoteIt != "" {
+		msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+	}
+
+	return msg
+}
+
+func GetProvinciaMsg(provincia string) string {
+	data := getProvincia(provincia)
+
+	msg := fmt.Sprintf(`
+		*Andamento COVID-19 - Provincia di %s (%s)*
+		_Ultimo aggiornamento: %s_
+
+		Totale positivi: %d
+		`,
+		data.DenominazioneProvincia,
+		data.DenominazioneRegione,
+		formatTimestamp(data.Data),
+		data.TotaleCasi,
+	)
+
+	if data.NoteIt != "" {
+		msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+	}
+
+	return msg
 }
