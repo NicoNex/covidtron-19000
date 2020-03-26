@@ -39,12 +39,12 @@ var cc *cache.Cache
 type botStates int
 
 const (
-	idle = iota
+	idle botStates = iota
 	regione
 	provincia
 )
 
-var botState = botStates.idle
+var botState = idle
 
 func NewBot(engine echotron.Api, chatId int64) echotron.Bot {
 	go cc.SaveSession(chatId)
@@ -57,23 +57,23 @@ func NewBot(engine echotron.Api, chatId int64) echotron.Bot {
 
 func (b *bot) Update(update *echotron.Update) {
 	switch botState {
-	case botStates.idle:
+	case idle:
 		if update.Message.Text == "/start" {
-			sendIntroduction()
+			b.sendIntroduction()
 
 		} else if update.Message.Text == "/andamento" {
 			b.SendMessageOptions(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
 
 		} else if update.Message.Text == "/regione" {
 			b.SendMessage("Inserisci il nome di una regione.", b.chatId)
-			botState = botStates.regione
+			botState = regione
 
 		} else if update.Message.Text == "/provincia" {
 			b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
-			botState = botStates.provincia
+			botState = provincia
 		}
 
-	case botStates.regione:
+	case regione:
 		if update.Message.Text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
 
@@ -81,9 +81,9 @@ func (b *bot) Update(update *echotron.Update) {
 			b.SendMessageOptions(c19.GetRegioneMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 
-		botState = botStates.idle
+		botState = idle
 
-	case botStates.provincia:
+	case provincia:
 		if update.Message.Text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
 
@@ -91,11 +91,11 @@ func (b *bot) Update(update *echotron.Update) {
 			b.SendMessageOptions(c19.GetProvinciaMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 
-		botState = botStates.idle
+		botState = idle
 	}
 }
 
-func sendIntroduction() {
+func (b bot) sendIntroduction() {
 	b.SendMessageOptions(`*Benvenuto in Covidtron-19000!*
 *Comandi:*
 /start: visualizza questo messaggio
