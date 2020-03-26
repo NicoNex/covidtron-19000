@@ -1,3 +1,21 @@
+/*
+ * Covidtron-19000 - a bot for monitoring data about COVID-19.
+ * Copyright (C) 2020 Nicolò Santamaria, Michele Dimaggio.
+ *
+ * Covidtron-19000 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Covidtron-19000 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package main
 
 import (
@@ -93,7 +111,7 @@ func sendIntroduction() {
 
 	Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com)
 	`
-	
+
 	b.SendMessageOptions(msg, b.chatId, echotron.PARSE_MARKDOWN | echotron.DISABLE_WEB_PAGE_PREVIEW)
 }
 
