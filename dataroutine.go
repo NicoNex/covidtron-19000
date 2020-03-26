@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 	"github.com/NicoNex/covidtron-19000/c19"
 )
