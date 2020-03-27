@@ -31,11 +31,12 @@ type Cache struct {
 	Sessions []int64 `json:"Sessions"`
 }
 
+var cachepath string
+
 func NewCache(bname string) *Cache {
 	var cache = &Cache{botName: bname}
 
-	fpath := fmt.Sprintf("%s/.cache/%s.json", os.Getenv("HOME"), bname)
-	data, err := ioutil.ReadFile(fpath)
+	data, err := ioutil.ReadFile(cachepath)
 	if err != nil {
 		log.Println(err)
 		goto exit
@@ -70,8 +71,7 @@ func (c *Cache) SaveSession(s int64) {
 			return
 		}
 
-		fpath := fmt.Sprintf("%s/.cache/%s.json", os.Getenv("HOME"), c.botName)
-		err = ioutil.WriteFile(fpath, b, 0755)
+		err = ioutil.WriteFile(cachepath, b, 0755)
 		if err != nil {
 			log.Println(err)
 		}
@@ -92,8 +92,7 @@ func (c *Cache) DelSession(s int64) {
 		return
 	}
 
-	fpath := fmt.Sprintf("%s/.cache/%s.json", os.Getenv("HOME"), c.botName)
-	err = ioutil.WriteFile(fpath, b, 0755)
+	err = ioutil.WriteFile(cachepath, b, 0755)
 	if err != nil {
 		log.Println(err)
 	}
@@ -101,4 +100,8 @@ func (c *Cache) DelSession(s int64) {
 
 func (c Cache) GetSessions() []int64 {
 	return c.Sessions
+}
+
+func init() {
+	cachepath = fmt.Sprintf("%s/.cache/%s.json", os.Getenv("HOME")
 }
