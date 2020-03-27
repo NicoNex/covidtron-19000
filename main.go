@@ -104,10 +104,10 @@ func (b bot) sendIntroduction() {
 /provincia: visualizza andamento provincia
 /cancel: annulla l'operazione in corso
 
-Bot creato da @NicoNex e @Dj_Mike238.
+Bot creato da @NicoNex e @Dj\_Mike238.
 Basato su [echotron](https://github.com/NicoNex/echotron).
 
-Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com)`,
+Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com).`,
     b.chatId, echotron.PARSE_MARKDOWN | echotron.DISABLE_WEB_PAGE_PREVIEW)
 }
 
