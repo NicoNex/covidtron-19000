@@ -218,5 +218,5 @@ Totale positivi: %d`,
 }
 
 func init() {
-	jsonpath = fmt.Sprintf("%s/.config/covidtron-19000", os.Getenv("HOME"))
+	jsonpath = fmt.Sprintf("%s/.cache/covidtron-19000", os.Getenv("HOME"))
 }
