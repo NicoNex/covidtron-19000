@@ -31,18 +31,24 @@ import (
 	"github.com/thedevsaddam/gojsonq/v2"
 )
 
-const JSON_PATH = "~/.config/covidtron-19000"
+const JSON_PATH = ".config/covidtron-19000"
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s-latest.json"
 	files := [3]string{"andamento-nazionale", "province", "regioni"}
+
+	dir := fmt.Sprintf("%s/%s", os.Getenv("HOME"), JSON_PATH)
+	_, err := os.Stat(dir)
+	if err != nil {
+		os.Mkdir(dir, 0755)
+	}
 
 	for _, value := range files {
 		var url = fmt.Sprintf(json_url, value)
 
 		var content []byte = echotron.SendGetRequest(url)
 
-		fpath := fmt.Sprintf("%s/%s.json", JSON_PATH, value)
+		fpath := fmt.Sprintf("%s/%s/%s.json", os.Getenv("HOME"), JSON_PATH, value)
 		data, err := os.Create(fpath)
 
 		if err != nil {
@@ -61,7 +67,7 @@ func Update() {
 func getAndamento() Andamento {
 	var data Andamento
 
-	fpath := fmt.Sprintf("%s/andamento-nazionale.json", JSON_PATH)
+	fpath := fmt.Sprintf("%s/%s/andamento-nazionale.json", os.Getenv("HOME"), JSON_PATH)
 	search := gojsonq.New().File(fpath).First()
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
@@ -71,7 +77,7 @@ func getAndamento() Andamento {
 func getRegione(regione string) *Regione {
 	var data Regione
 
-	fpath := fmt.Sprintf("%s/regioni.json", JSON_PATH)
+	fpath := fmt.Sprintf("%s/%s/regioni.json", os.Getenv("HOME"), JSON_PATH)
 	search := gojsonq.New().File(fpath).Where("denominazione_regione", "=", regione).First()
 	
 	if search == nil {
@@ -86,7 +92,7 @@ func getRegione(regione string) *Regione {
 func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
-	fpath := fmt.Sprintf("%s/province.json", JSON_PATH)
+	fpath := fmt.Sprintf("%s/%s/province.json", os.Getenv("HOME"), JSON_PATH)
 	search := gojsonq.New().File(fpath).Where("denominazione_provincia", "=", provincia).First()
 
 	if search == nil {
