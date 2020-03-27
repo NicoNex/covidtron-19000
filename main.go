@@ -89,7 +89,7 @@ func (b *bot) Update(update *echotron.Update) {
 }
 
 func (b bot) sendIntroduction() {
-	b.SendMessageOptions(`*Benvenuto in Covidtron-19000!*
+	b.SendMessageWithKeyboard(`*Benvenuto in Covidtron-19000!*
 
 *Comandi:*
 /start: visualizza questo messaggio
@@ -102,7 +102,12 @@ Bot creato da @NicoNex e @Dj\_Mike238.
 Basato su [echotron](https://github.com/NicoNex/echotron).
 
 Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com).`,
-		b.chatId, echotron.PARSE_MARKDOWN)
+		b.chatId,
+		b.InlineKbdMarkup(
+			b.InlineKbdRow(
+				b.InlineKbdBtn("☕️ Offrici un caffè", "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HPUYKM3VJ2QMN&source=url", ""),
+			),
+		))
 }
 
 func main() {
