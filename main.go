@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/NicoNex/covidtron-19000/cache"
 	"github.com/NicoNex/covidtron-19000/c19"
+	"github.com/NicoNex/covidtron-19000/cache"
 	"github.com/NicoNex/echotron"
 )
 
@@ -60,14 +60,11 @@ func (b *bot) Update(update *echotron.Update) {
 	case idle:
 		if update.Message.Text == "/start" {
 			b.sendIntroduction()
-
 		} else if update.Message.Text == "/andamento" {
 			b.SendMessageOptions(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
-
 		} else if update.Message.Text == "/regione" {
 			b.SendMessage("Inserisci il nome di una regione.", b.chatId)
 			botState = regione
-
 		} else if update.Message.Text == "/provincia" {
 			b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
 			botState = provincia
@@ -76,21 +73,17 @@ func (b *bot) Update(update *echotron.Update) {
 	case regione:
 		if update.Message.Text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
-
 		} else {
 			b.SendMessageOptions(c19.GetRegioneMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
-
 		botState = idle
 
 	case provincia:
 		if update.Message.Text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
-
 		} else {
 			b.SendMessageOptions(c19.GetProvinciaMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
-
 		botState = idle
 	}
 }
@@ -109,11 +102,11 @@ Bot creato da @NicoNex e @Dj\_Mike238.
 Basato su [echotron](https://github.com/NicoNex/echotron).
 
 Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com).`,
-    b.chatId, echotron.PARSE_MARKDOWN)
+		b.chatId, echotron.PARSE_MARKDOWN)
 }
 
 func main() {
-    go updateData()
+	go updateData()
 	token, err := ioutil.ReadFile("./token")
 	if err != nil {
 		fmt.Println("error: could not find token file")

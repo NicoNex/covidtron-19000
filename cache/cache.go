@@ -19,15 +19,15 @@
 package cache
 
 import (
-	"os"
-	"fmt"
-	"log"
-	"io/ioutil"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 type Cache struct {
-	botName string
+	botName  string
 	Sessions []int64 `json:"Sessions"`
 }
 
@@ -45,7 +45,6 @@ func NewCache(bname string) *Cache {
 	if err != nil {
 		log.Println(err)
 	}
-
 
 exit:
 	return cache

@@ -19,13 +19,13 @@
 package c19
 
 import (
-	"io"
-	"os"
-	"fmt"
-	"log"
-	"time"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"time"
 
 	"github.com/NicoNex/echotron"
 	"github.com/thedevsaddam/gojsonq/v2"
@@ -79,7 +79,7 @@ func getRegione(regione string) *Regione {
 
 	fpath := fmt.Sprintf("%s/%s/regioni.json", os.Getenv("HOME"), JSON_PATH)
 	search := gojsonq.New().File(fpath).Where("denominazione_regione", "=", regione).First()
-	
+
 	if search == nil {
 		return nil
 	}
@@ -169,18 +169,18 @@ Ricoverati con sintomi: %d
 In terapia intensiva: %d
 In isolamento domiciliare: %d
 Totale ospedalizzati: %d`,
-		data.DenominazioneRegione,
-		formatTimestamp(data.Data),
-		data.TotaleAttualmentePositivi,
-		data.NuoviAttualmentePositivi,
-		data.DimessiGuariti,
-		data.Deceduti,
-		data.TotaleCasi,
-		data.Tamponi,
-		data.RicoveratiConSintomi,
-		data.TerapiaIntensiva,
-		data.IsolamentoDomiciliare,
-		data.TotaleOspedalizzati,
+			data.DenominazioneRegione,
+			formatTimestamp(data.Data),
+			data.TotaleAttualmentePositivi,
+			data.NuoviAttualmentePositivi,
+			data.DimessiGuariti,
+			data.Deceduti,
+			data.TotaleCasi,
+			data.Tamponi,
+			data.RicoveratiConSintomi,
+			data.TerapiaIntensiva,
+			data.IsolamentoDomiciliare,
+			data.TotaleOspedalizzati,
 		)
 
 		if data.NoteIt != "" {
@@ -201,10 +201,10 @@ func GetProvinciaMsg(provincia string) string {
 _Dati aggiornati alle %s_
 
 Totale positivi: %d`,
-		data.DenominazioneProvincia,
-		data.DenominazioneRegione,
-		formatTimestamp(data.Data),
-		data.TotaleCasi,
+			data.DenominazioneProvincia,
+			data.DenominazioneRegione,
+			formatTimestamp(data.Data),
+			data.TotaleCasi,
 		)
 
 		if data.NoteIt != "" {

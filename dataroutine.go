@@ -1,8 +1,8 @@
 package main
 
 import (
-	"time"
 	"github.com/NicoNex/covidtron-19000/c19"
+	"time"
 )
 
 func updateData() {
@@ -14,7 +14,7 @@ func updateData() {
 	for {
 		t := time.Now().Unix()
 
-		if t - timestamp > 86400 {
+		if t-timestamp > 86400 {
 			c19.Update()
 			timestamp = t
 		}
