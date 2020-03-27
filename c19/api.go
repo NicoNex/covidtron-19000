@@ -31,13 +31,13 @@ import (
 	"github.com/thedevsaddam/gojsonq/v2"
 )
 
-const JSON_PATH = ".config/covidtron-19000"
+var jsonpath string
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s-latest.json"
 	files := [3]string{"andamento-nazionale", "province", "regioni"}
 
-	dir := fmt.Sprintf("%s/%s", os.Getenv("HOME"), JSON_PATH)
+	dir := fmt.Sprintf(jsonpath)
 	_, err := os.Stat(dir)
 	if err != nil {
 		os.Mkdir(dir, 0755)
@@ -48,7 +48,7 @@ func Update() {
 
 		var content []byte = echotron.SendGetRequest(url)
 
-		fpath := fmt.Sprintf("%s/%s/%s.json", os.Getenv("HOME"), JSON_PATH, value)
+		fpath := fmt.Sprintf("%s/%s.json", jsonpath, value)
 		data, err := os.Create(fpath)
 
 		if err != nil {
@@ -67,7 +67,7 @@ func Update() {
 func getAndamento() Andamento {
 	var data Andamento
 
-	fpath := fmt.Sprintf("%s/%s/andamento-nazionale.json", os.Getenv("HOME"), JSON_PATH)
+	fpath := fmt.Sprintf("%s/andamento-nazionale.json", jsonpath)
 	search := gojsonq.New().File(fpath).First()
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
@@ -77,7 +77,7 @@ func getAndamento() Andamento {
 func getRegione(regione string) *Regione {
 	var data Regione
 
-	fpath := fmt.Sprintf("%s/%s/regioni.json", os.Getenv("HOME"), JSON_PATH)
+	fpath := fmt.Sprintf("%s/regioni.json", jsonpath)
 	search := gojsonq.New().File(fpath).Where("denominazione_regione", "=", regione).First()
 
 	if search == nil {
@@ -92,7 +92,7 @@ func getRegione(regione string) *Regione {
 func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
-	fpath := fmt.Sprintf("%s/%s/province.json", os.Getenv("HOME"), JSON_PATH)
+	fpath := fmt.Sprintf("%s/province.json", jsonpath)
 	search := gojsonq.New().File(fpath).Where("denominazione_provincia", "=", provincia).First()
 
 	if search == nil {
@@ -215,4 +215,8 @@ Totale positivi: %d`,
 	} else {
 		return "Errore: Provincia non trovata."
 	}
+}
+
+func init() {
+	jsonpath = fmt.Sprintf("%s/.config/covidtron-19000", os.Getenv("HOME"))
 }
