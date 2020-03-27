@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+// func hasChanged(b []byte) bool {
+
+// }
+
 func updateData() {
 	var timestamp int64
 
