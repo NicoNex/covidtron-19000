@@ -107,7 +107,7 @@ func formatTimestamp(timestamp string) string {
 		log.Println(err)
 	}
 
-	return tp.Format("02/01/2006 15:04")
+	return tp.Format("15:04 del 02/01/2006")
 }
 
 func GetAndamentoMsg() string {
@@ -115,7 +115,7 @@ func GetAndamentoMsg() string {
 
 	msg := fmt.Sprintf(`
 		*Andamento Nazionale COVID-19*
-		_Ultimo aggiornamento: %s_
+		_Dati aggiornati alle %s_
 
 		Attualmente positivi: %d (+%d da ieri)
 		Guariti: %d
@@ -154,7 +154,7 @@ func GetRegioneMsg(regione string) string {
 	if data != nil {
 		msg := fmt.Sprintf(`
 		*Andamento COVID-19 - Regione %s*
-		_Ultimo aggiornamento: %s_
+		_Dati aggiornati alle %s_
 
 		Attualmente positivi: %d (+%d da ieri)
 		Guariti: %d
@@ -197,7 +197,7 @@ func GetProvinciaMsg(provincia string) string {
 	if data != nil {
 		msg := fmt.Sprintf(`
 		*Andamento COVID-19 - Provincia di %s (%s)*
-		_Ultimo aggiornamento: %s_
+		_Dati aggiornati alle %s_
 
 		Totale positivi: %d
 		`,
