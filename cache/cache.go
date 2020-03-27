@@ -62,7 +62,7 @@ func (c Cache) isin(s int64) bool {
 }
 
 func (c *Cache) SaveSession(s int64) {
-	if c.isin(s) {
+	if !c.isin(s) {
 		c.Sessions = append(c.Sessions, s)
 
 		b, err := json.Marshal(c)
@@ -71,8 +71,7 @@ func (c *Cache) SaveSession(s int64) {
 			return
 		}
 
-		fmt.Println(string(b))
-		err = ioutil.WriteFile(cachepath, b, 0755)
+		err = ioutil.WriteFile(cachepath, b, 0644)
 		if err != nil {
 			log.Println(err)
 		}
@@ -93,7 +92,7 @@ func (c *Cache) DelSession(s int64) {
 		return
 	}
 
-	err = ioutil.WriteFile(cachepath, b, 0755)
+	err = ioutil.WriteFile(cachepath, b, 0644)
 	if err != nil {
 		log.Println(err)
 	}
