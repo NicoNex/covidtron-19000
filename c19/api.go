@@ -78,7 +78,7 @@ func getRegione(regione string) *Regione {
 	var data Regione
 
 	fpath := fmt.Sprintf("%s/regioni.json", jsonpath)
-	search := gojsonq.New().File(fpath).Where("denominazione_regione", "=", regione).First()
+	search := gojsonq.New().File(fpath).WhereContains("denominazione_regione", regione).First()
 
 	if search == nil {
 		return nil
@@ -93,7 +93,7 @@ func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
 	fpath := fmt.Sprintf("%s/province.json", jsonpath)
-	search := gojsonq.New().File(fpath).Where("denominazione_provincia", "=", provincia).First()
+	search := gojsonq.New().File(fpath).WhereContains("denominazione_provincia", provincia).First()
 
 	if search == nil {
 		return nil
