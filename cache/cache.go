@@ -32,7 +32,7 @@ type Cache struct {
 }
 
 func NewCache(bname string) *Cache {
-	var cache *Cache
+	var cache = &Cache{botName: bname}
 
 	fpath := fmt.Sprintf("%s/.cache/%s.json", os.Getenv("HOME"), bname)
 	data, err := ioutil.ReadFile(fpath)
@@ -48,7 +48,6 @@ func NewCache(bname string) *Cache {
 
 
 exit:
-	cache.botName = bname
 	return cache
 }
 
