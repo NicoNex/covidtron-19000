@@ -28,7 +28,7 @@ import (
 
 type Cache struct {
 	botName  string
-	Sessions []int64 `json:"Sessions"`
+	Sessions []int64 `json:"sessions"`
 }
 
 var cachepath string
@@ -71,6 +71,7 @@ func (c *Cache) SaveSession(s int64) {
 			return
 		}
 
+		fmt.Println(string(b))
 		err = ioutil.WriteFile(cachepath, b, 0755)
 		if err != nil {
 			log.Println(err)
@@ -103,5 +104,5 @@ func (c Cache) GetSessions() []int64 {
 }
 
 func init() {
-	cachepath = fmt.Sprintf("%s/.cache/%s.json", os.Getenv("HOME")
+	cachepath = fmt.Sprintf("%s/.cache/covidtron-19000.json", os.Getenv("HOME"))
 }
