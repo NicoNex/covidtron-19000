@@ -103,5 +103,10 @@ func (c Cache) GetSessions() []int64 {
 }
 
 func init() {
-	cachepath = fmt.Sprintf("%s/.cache/covidtron-19000.json", os.Getenv("HOME"))
+	ccdir := fmt.Sprintf("%s/.cache/covidtron-19000/", os.Getenv("HOME"))
+	if _, err := os.Stat(ccdir); os.IsNotExist(err) {
+		os.Mkdir(ccdir, 0755)
+	}
+
+	cachepath = fmt.Sprintf("%s/.cache/covidtron-19000/cache.json", os.Getenv("HOME"))
 }
