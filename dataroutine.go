@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jasonlvhit/gocron"
+	"github.com/go-co-op/gocron"
 	"github.com/NicoNex/covidtron-19000/c19"
 )
 
