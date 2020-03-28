@@ -29,34 +29,33 @@ import (
 
 const BOT_NAME = "covidtron-19000"
 
-type bot struct {
-	chatId int64
-	echotron.Api
-}
-
-var cc *cache.Cache
-
-type botStates int
-
+type botState int
 const (
-	idle botStates = iota
+	idle botState = iota
 	regione
 	provincia
 )
 
-var botState = idle
+type bot struct {
+	chatId int64
+	state botState
+	echotron.Api
+}
+
+var cc *cache.Cache
 
 func NewBot(engine echotron.Api, chatId int64) echotron.Bot {
 	go cc.SaveSession(chatId)
 
 	return &bot{
 		chatId,
+		idle,
 		engine,
 	}
 }
 
 func (b *bot) Update(update *echotron.Update) {
-	switch botState {
+	switch b.state {
 	case idle:
 		if update.Message.Text == "/start" {
 			b.sendIntroduction()
@@ -64,10 +63,12 @@ func (b *bot) Update(update *echotron.Update) {
 			b.SendMessageOptions(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
 		} else if update.Message.Text == "/regione" {
 			b.SendMessage("Inserisci il nome di una regione.", b.chatId)
-			botState = regione
+			b.state = regione
 		} else if update.Message.Text == "/provincia" {
 			b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
-			botState = provincia
+			b.state = provincia
+		} else if update.Message.Text == "/users" {
+			b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatId)
 		}
 
 	case regione:
@@ -76,7 +77,7 @@ func (b *bot) Update(update *echotron.Update) {
 		} else {
 			b.SendMessageOptions(c19.GetRegioneMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
-		botState = idle
+		b.state = idle
 
 	case provincia:
 		if update.Message.Text == "/cancel" {
@@ -84,7 +85,7 @@ func (b *bot) Update(update *echotron.Update) {
 		} else {
 			b.SendMessageOptions(c19.GetProvinciaMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
-		botState = idle
+		b.state = idle
 	}
 }
 

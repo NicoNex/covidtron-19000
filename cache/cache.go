@@ -102,6 +102,10 @@ func (c Cache) GetSessions() []int64 {
 	return c.Sessions
 }
 
+func (c Cache) CountSessions() int {
+	return len(c.Sessions)
+}
+
 func init() {
 	ccdir := fmt.Sprintf("%s/.cache/covidtron-19000/", os.Getenv("HOME"))
 	if _, err := os.Stat(ccdir); os.IsNotExist(err) {
