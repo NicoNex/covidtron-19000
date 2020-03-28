@@ -106,6 +106,7 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 		b.InlineKbdMarkup(
 			b.InlineKbdRow(
 				b.InlineKbdBtn("☕️ Offrici un caffè", "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HPUYKM3VJ2QMN&source=url", ""),
+				b.InlineKbdBtn("👾 GitHub Repository", "https://github.com/NicoNex/covidtron-19000", ""),
 			),
 		))
 }
