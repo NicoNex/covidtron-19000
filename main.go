@@ -21,6 +21,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/NicoNex/covidtron-19000/c19"
 	"github.com/NicoNex/covidtron-19000/cache"
@@ -121,7 +122,7 @@ func (b bot) GetKeyboard(data []string, cols int) echotron.InlineKeyboard {
 		var tmprow []echotron.InlineButton
 
 		for j := i; j < datalen && j < i+cols; j++ {
-			tmprow = append(tmprow, b.InlineKbdBtn(data[i], "", data[i]))
+			tmprow = append(tmprow, b.InlineKbdBtn(data[i], "", strings.ToLower(data[i])))
 		}
 
 		rows = append(rows, b.InlineKbdRow(tmprow...))
