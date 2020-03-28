@@ -113,6 +113,23 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 	)
 }
 
+func (b bot) GetKeyboard(data []string, cols int) echotron.InlineKeyboard {
+	var rows []echotron.InlineKbdRow
+	var datalen = len(data)
+
+	for i := 0; i < datalen; i += cols {
+		var tmprow []echotron.InlineButton
+
+		for j := i; j < datalen && j < i+cols; j++ {
+			tmprow = append(tmprow, b.InlineKbdBtn(data[i], "", data[i]))
+		}
+
+		rows = append(rows, b.InlineKbdRow(tmprow...))
+	}
+
+	return b.NewInlineKeyboard(rows...)
+}
+
 func main() {
 	go updateData()
 	token, err := ioutil.ReadFile("./token")
