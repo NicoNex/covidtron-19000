@@ -20,7 +20,6 @@ package c19
 
 import (
 	"bytes"
-	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -69,7 +68,9 @@ func getAndamento() Andamento {
 	var data Andamento
 
 	fpath := fmt.Sprintf("%s/andamento-nazionale.json", jsonpath)
-	search := gojsonq.New().File(fpath).First()
+	search := gojsonq.New().
+			File(fpath).
+			First()
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
 	return data
@@ -79,7 +80,10 @@ func getRegione(regione string) *Regione {
 	var data Regione
 
 	fpath := fmt.Sprintf("%s/regioni.json", jsonpath)
-	search := gojsonq.New().File(fpath).WhereContains("denominazione_regione", regione).First()
+	search := gojsonq.New().
+			File(fpath).
+			WhereContains("denominazione_regione", regione).
+			First()
 
 	if search == nil {
 		return nil
@@ -94,7 +98,20 @@ func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
 	fpath := fmt.Sprintf("%s/province.json", jsonpath)
-	search := gojsonq.New().File(fpath).WhereContains("denominazione_provincia", provincia).First()
+
+	var search interface{}
+
+	if len(provincia) == 2 {
+		search = gojsonq.New().
+				File(fpath).
+				WhereContains("sigla_provincia", provincia).
+				First()
+	} else if search == nil {
+		search = gojsonq.New().
+				File(fpath).
+				WhereContains("denominazione_provincia", provincia).
+				First()
+	}
 
 	if search == nil {
 		return nil
@@ -106,9 +123,7 @@ func getProvincia(provincia string) *Provincia {
 }
 
 func formatTimestamp(timestamp string) string {
-	timestamp = timestamp + "Z"
-
-	tp, err := time.Parse(time.RFC3339, timestamp)
+	tp, err := time.Parse(time.RFC3339, timestamp+"Z")
 
 	if err != nil {
 		log.Println(err)

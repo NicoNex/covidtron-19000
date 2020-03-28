@@ -53,6 +53,7 @@ type Provincia struct {
 	Data                   string `json:"data"`
 	DenominazioneRegione   string `json:"denominazione_regione"`
 	DenominazioneProvincia string `json:"denominazione_provincia"`
+	SiglaProvincia         string `json:"sigla_provincia"`
 	TotaleCasi             int    `json:"totale_casi"`
 	NoteIt                 string `json:"note_it"`
 }
