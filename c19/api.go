@@ -69,8 +69,8 @@ func getAndamento() Andamento {
 
 	fpath := fmt.Sprintf("%s/andamento-nazionale.json", jsonpath)
 	search := gojsonq.New().
-			File(fpath).
-			First()
+		File(fpath).
+		First()
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
 	return data
@@ -81,9 +81,9 @@ func getRegione(regione string) *Regione {
 
 	fpath := fmt.Sprintf("%s/regioni.json", jsonpath)
 	search := gojsonq.New().
-			File(fpath).
-			WhereContains("denominazione_regione", regione).
-			First()
+		File(fpath).
+		WhereContains("denominazione_regione", regione).
+		First()
 
 	if search == nil {
 		return nil
@@ -103,14 +103,14 @@ func getProvincia(provincia string) *Provincia {
 
 	if len(provincia) == 2 {
 		search = gojsonq.New().
-				File(fpath).
-				WhereContains("sigla_provincia", provincia).
-				First()
+			File(fpath).
+			WhereContains("sigla_provincia", provincia).
+			First()
 	} else if search == nil {
 		search = gojsonq.New().
-				File(fpath).
-				WhereContains("denominazione_provincia", provincia).
-				First()
+			File(fpath).
+			WhereContains("denominazione_provincia", provincia).
+			First()
 	}
 
 	if search == nil {
