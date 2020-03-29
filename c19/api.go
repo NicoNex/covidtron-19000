@@ -1,6 +1,6 @@
 /*
  * Covidtron-19000 - a bot for monitoring data about COVID-19.
- * Copyright (C) 2020 Michele Dimaggio.
+ * Copyright (C) 2020 Michele Dimaggio, Alessandro Ianne.
  *
  * Covidtron-19000 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,84 +19,39 @@
 package c19
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"time"
 
-	"github.com/NicoNex/echotron"
 	"github.com/thedevsaddam/gojsonq/v2"
-	"github.com/mitchellh/mapstructure"
 )
 
-var jsonpath string
+func getNazione(nazione string) *GisandData {
+	var data GisandData
 
-func Update() {
-	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s-latest.json"
-	var csv_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/%s.csv"
-	
-	files := [4]string{"andamento-mondiale", "andamento-nazionale", "province", "regioni"}
+	log.Println(nazione)
+	fpath := fmt.Sprintf("%s/gisanddata.json", datapath)
+	log.Println(fpath)
+	search := gojsonq.New().
+		File(fpath).
+		Where("country_region", "=", nazione).
+		First()
 
-	dir := fmt.Sprintf(jsonpath)
-	_, err := os.Stat(dir)
-	if err != nil {
-		os.Mkdir(dir, 0755)
-	}
-
-	for _, value := range files {
-		var url, ext string
-		
-		if value == "andamento-mondiale" {
-			// time.Now().Format("01-02-2006")
-			url = fmt.Sprintf(csv_url, "03-27-2020")
-			ext = "csv"
-		} else {
-	
-			url = fmt.Sprintf(json_url, value)
-			ext = "json"
-		}
-
-		var content []byte = echotron.SendGetRequest(url)
-		
-		fpath := fmt.Sprintf("%s/%s.%s", jsonpath, value, ext)
-		data, err := os.Create(fpath)
-
-		if err != nil {
-			log.Println(err)
-		}
-		defer data.Close()
-
-		_, err = io.Copy(data, bytes.NewReader(content))
-
-		if err != nil {
-			log.Println(err)
-		}
-	}
-}
-
-func getNazione(nazione string) *Nazione {
-	var data Nazione
-
-	fpath := fmt.Sprintf("%s/andamento-mondiale.csv", jsonpath)
-	search := gojsonq.New(gojsonq.SetDecoder(&Nazione{})).
-					 File(fpath).
-					 WhereEqual("Country_Region", nazione).
-					 First()
 	if search == nil {
 		return nil
 	} 
 
-	mapstructure.Decode(search, &data)
+	bytes, _ := json.Marshal(search)
+	json.Unmarshal(bytes, &data)
 	return &data
 }
 
 func getAndamento() Andamento {
 	var data Andamento
 
-	fpath := fmt.Sprintf("%s/andamento-nazionale.json", jsonpath)
+	fpath := fmt.Sprintf("%s/andamento-nazionale.json", datapath)
 	search := gojsonq.New().
 		File(fpath).
 		First()
@@ -108,7 +63,7 @@ func getAndamento() Andamento {
 func getRegione(regione string) *Regione {
 	var data Regione
 
-	fpath := fmt.Sprintf("%s/regioni.json", jsonpath)
+	fpath := fmt.Sprintf("%s/regioni.json", datapath)
 	search := gojsonq.New().
 		File(fpath).
 		WhereContains("denominazione_regione", regione).
@@ -126,7 +81,7 @@ func getRegione(regione string) *Regione {
 func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
-	fpath := fmt.Sprintf("%s/province.json", jsonpath)
+	fpath := fmt.Sprintf("%s/province.json", datapath)
 
 	var search interface{}
 
@@ -169,21 +124,22 @@ func GetNazioneMsg(nazione string) string {
 		return "Nessun dato disponibile."
 	}
 
+	lastDay := len(data.DailyData)
+
 	msg := fmt.Sprintf(`*Andamento COVID-19 - %s*
 _Dati aggiornati il: %s_`,
 		data.Country_Region,
-		data.Last_Update)
+		data.DailyData[lastDay].Date)
 	
 	if data.Province_State != "" {
 		msg = fmt.Sprintf("%s\nStato: %s", msg, data.Province_State)
 	}
 
-	msg = fmt.Sprintf("%s\nAttualmente positivi: %s\nGuariti: %s\nDeceduti: %s\nTotale positivi: %s",
+	msg = fmt.Sprintf("%s\nGuariti: %d\nDeceduti: %d\nTotale positivi: %d",
 		msg,
-		data.Active,
-		data.Recovered,
-		data.Deaths,
-		data.Confirmed)
+		data.DailyData[lastDay].Recovered,
+		data.DailyData[lastDay].Deaths,
+		data.DailyData[lastDay].Confirmed)
 	return msg
 }
 
@@ -289,5 +245,5 @@ Totale positivi: %d`,
 }
 
 func init() {
-	jsonpath = fmt.Sprintf("%s/.cache/covidtron-19000", os.Getenv("HOME"))
+	datapath = fmt.Sprintf("%s/.cache/covidtron-19000", os.Getenv("HOME"))
 }

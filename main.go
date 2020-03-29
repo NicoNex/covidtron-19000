@@ -1,6 +1,6 @@
 /*
  * Covidtron-19000 - a bot for monitoring data about COVID-19.
- * Copyright (C) 2020 Nicolò Santamaria, Michele Dimaggio.
+ * Copyright (C) 2020 Nicolò Santamaria, Michele Dimaggio, Alessandro Ianne.
  *
  * Covidtron-19000 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,6 +98,8 @@ func (b *bot) Update(update *echotron.Update) {
 		} else {
 			b.SendMessageOptions(c19.GetNazioneMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
+		b.state = idle
+
 	}
 }
 
@@ -106,12 +108,13 @@ func (b bot) sendIntroduction() {
 
 *Comandi:*
 /start: visualizza questo messaggio
-/andamento: visualizza andamento nazionale
-/regione: visualizza andamento regione
-/provincia: visualizza andamento provincia
+/andamento: visualizza andamento nazionale (Italia)
+/regione: visualizza andamento regione (Italia)
+/provincia: visualizza andamento provincia (Italia)
+/nazione: visualizza andamento nazionale (resto del mondo)
 /cancel: annulla l'operazione in corso
 
-Bot creato da @NicoNex e @Dj\_Mike238.
+Bot creato da @NicoNex, @Dj\_Mike238 e @the\_real\_stego.
 Basato su [echotron](https://github.com/NicoNex/echotron).
 
 Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com).`,
