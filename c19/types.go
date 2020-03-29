@@ -88,3 +88,10 @@ type Provincia struct {
 	TotaleCasi             int    `json:"totale_casi"`
 	NoteIt                 string `json:"note_it"`
 }
+
+type Nota struct {
+	Regione         string  `json:"regione"`
+	Provincia       string  `json:"provincia"`
+	TipologiaAvviso string  `json:"tipologia_avviso"`
+	Note            string  `json:"note"`
+}

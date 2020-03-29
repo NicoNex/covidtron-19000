@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/thedevsaddam/gojsonq/v2"
@@ -106,6 +107,21 @@ func getProvincia(provincia string) *Provincia {
 	return &data
 }
 
+func getNota(codice string) Nota {
+	var data Nota
+
+	fpath := fmt.Sprintf("%s/note-it.json", jsonpath)
+
+	search := gojsonq.New().
+		File(fpath).
+		WhereEqual("codice", codice).
+		First()
+
+	bytes, _ := json.Marshal(search)
+	json.Unmarshal(bytes, &data)
+	return data
+}
+
 func formatTimestamp(timestamp string) string {
 	tp, err := time.Parse(time.RFC3339, timestamp+"Z")
 
@@ -140,6 +156,25 @@ _Dati aggiornati il: %s_`,
 		data.DailyData[lastDay].Recovered,
 		data.DailyData[lastDay].Deaths,
 		data.DailyData[lastDay].Confirmed)
+
+	return msg
+}
+
+func formatNote(codici string) string {
+	var noteData []Nota
+
+	notes := strings.Split(codici, ";")
+
+	for _, note := range notes {
+		noteData = append(noteData, getNota(note))
+	}
+
+	msg := "\n\n*Note:*"
+
+	for _, note := range noteData {
+		msg += fmt.Sprintf("\n_%s - %s_\n%s", note.Regione, note.TipologiaAvviso, note.Note)
+	}
+
 	return msg
 }
 
@@ -172,9 +207,9 @@ Totale ospedalizzati: %d`,
 		data.TotaleOspedalizzati,
 	)
 
-	// if data.NoteIt != "" {
-	// 	msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
-	// }
+	if data.NoteIt != "" {
+		msg += formatNote(data.NoteIt)
+	}
 
 	return msg
 }
@@ -210,9 +245,9 @@ Totale ospedalizzati: %d`,
 			data.TotaleOspedalizzati,
 		)
 
-		// if data.NoteIt != "" {
-		// 	msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
-		// }
+		if data.NoteIt != "" {
+			msg += formatNote(data.NoteIt)
+		}
 
 		return msg
 	} else {
@@ -235,7 +270,7 @@ Totale positivi: %d`,
 		)
 
 		if data.NoteIt != "" {
-			msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+			msg += formatNote(data.NoteIt)
 		}
 
 		return msg

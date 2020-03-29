@@ -33,7 +33,7 @@ import (
 
 var datapath string
 
-var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s-latest.json"
+var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
 
 var csv_prefix = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/"
 
@@ -45,10 +45,11 @@ func Update() {
 
 func pcmdpcUpdate() {
 	
-	files := [3]string{
-		"andamento-nazionale",
-		"province",
-		"regioni"}
+	files := [4]string{
+		"andamento-nazionale-latest",
+		"province-latest",
+		"regioni-latest",
+		"note-it"}
 
 	dir := fmt.Sprintf(datapath)
 	_, err := os.Stat(dir)
