@@ -68,7 +68,7 @@ func Update() {
 func getAndamento() Andamento {
 	var data Andamento
 
-	fpath := fmt.Sprintf("%s/andamento-nazionale.json", jsonpath)
+	fpath := fmt.Sprintf("%s/andamento-nazionale-latest.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
 		First()
@@ -80,7 +80,7 @@ func getAndamento() Andamento {
 func getRegione(regione string) *Regione {
 	var data Regione
 
-	fpath := fmt.Sprintf("%s/regioni.json", jsonpath)
+	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
 		WhereContains("denominazione_regione", regione).
@@ -98,7 +98,7 @@ func getRegione(regione string) *Regione {
 func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
-	fpath := fmt.Sprintf("%s/province.json", jsonpath)
+	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
 
 	var search interface{}
 
