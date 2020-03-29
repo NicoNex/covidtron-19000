@@ -172,7 +172,7 @@ func formatNote(codici string) string {
 	msg := "\n\n*Note:*"
 
 	for _, note := range noteData {
-		msg += fmt.Sprintf("\n_%s - %s_\n%s", note.Regione, note.TipologiaAvviso, note.Note)
+		msg += fmt.Sprintf("\n%s - %s\n_%s_", note.Regione, note.TipologiaAvviso, note.Note)
 	}
 
 	return msg
