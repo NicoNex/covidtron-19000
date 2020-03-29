@@ -83,7 +83,8 @@ func getNazione(nazione string) *Nazione {
 	fpath := fmt.Sprintf("%s/andamento-mondiale.csv", jsonpath)
 	search := gojsonq.New(gojsonq.SetDecoder(&Nazione{})).
 					 File(fpath).
-					 WhereEqual("Country_Region", nazione)
+					 WhereEqual("Country_Region", nazione).
+					 First()
 	if search == nil {
 		return nil
 	} 
@@ -169,7 +170,7 @@ func GetNazioneMsg(nazione string) string {
 	}
 
 	msg := fmt.Sprintf(`*Andamento COVID-19 - %s*
-_Dati aggiornati alle %s_`,
+_Dati aggiornati il: %s_`,
 		data.Country_Region,
 		data.Last_Update)
 	
