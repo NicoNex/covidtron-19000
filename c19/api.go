@@ -25,6 +25,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/NicoNex/echotron"
@@ -34,8 +35,8 @@ import (
 var jsonpath string
 
 func Update() {
-	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s-latest.json"
-	files := [3]string{"andamento-nazionale", "province", "regioni"}
+	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
+	files := [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note-it"}
 
 	dir := fmt.Sprintf(jsonpath)
 	_, err := os.Stat(dir)
@@ -122,6 +123,21 @@ func getProvincia(provincia string) *Provincia {
 	return &data
 }
 
+func getNota(codice string) Nota {
+	var data Nota
+
+	fpath := fmt.Sprintf("%s/note-it.json", jsonpath)
+
+	search := gojsonq.New().
+		File(fpath).
+		WhereEqual("codice", codice).
+		First()
+
+	bytes, _ := json.Marshal(search)
+	json.Unmarshal(bytes, &data)
+	return data
+}
+
 func formatTimestamp(timestamp string) string {
 	tp, err := time.Parse(time.RFC3339, timestamp+"Z")
 
@@ -130,6 +146,24 @@ func formatTimestamp(timestamp string) string {
 	}
 
 	return tp.Format("15:04 del 02/01/2006")
+}
+
+func formatNote(codici string) string {
+	var noteData []Nota
+
+	notes := strings.Split(codici, ";")
+
+	for _, note := range notes {
+		noteData = append(noteData, getNota(note))
+	}
+
+	msg := "\n\n*Note:*"
+
+	for _, note := range noteData {
+		msg += fmt.Sprintf("\n_%s - %s_\n%s", note.Regione, note.TipologiaAvviso, note.Note)
+	}
+
+	return msg
 }
 
 func GetAndamentoMsg() string {
@@ -161,9 +195,9 @@ Totale ospedalizzati: %d`,
 		data.TotaleOspedalizzati,
 	)
 
-	// if data.NoteIt != "" {
-	// 	msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
-	// }
+	if data.NoteIt != "" {
+		msg += formatNote(data.NoteIt)
+	}
 
 	return msg
 }
@@ -199,9 +233,9 @@ Totale ospedalizzati: %d`,
 			data.TotaleOspedalizzati,
 		)
 
-		// if data.NoteIt != "" {
-		// 	msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
-		// }
+		if data.NoteIt != "" {
+			msg += formatNote(data.NoteIt)
+		}
 
 		return msg
 	} else {
@@ -224,7 +258,7 @@ Totale positivi: %d`,
 		)
 
 		if data.NoteIt != "" {
-			msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+			msg += formatNote(data.NoteIt)
 		}
 
 		return msg
