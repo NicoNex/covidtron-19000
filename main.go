@@ -35,6 +35,7 @@ const (
 	idle botState = iota
 	regione
 	provincia
+	nazione
 )
 
 type bot struct {
@@ -68,6 +69,9 @@ func (b *bot) Update(update *echotron.Update) {
 		} else if update.Message.Text == "/provincia" {
 			b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
 			b.state = provincia
+		} else if update.Message.Text == "/nazione" {
+			b.SendMessage("Inserisci il nome di una nazione.", b.chatId)
+			b.state = nazione
 		} else if update.Message.Text == "/users" {
 			b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatId)
 		}
@@ -87,6 +91,13 @@ func (b *bot) Update(update *echotron.Update) {
 			b.SendMessageOptions(c19.GetProvinciaMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 		b.state = idle
+
+	case nazione:
+		if update.Message.Text == "/cancel" {
+			b.SendMessage("Operazione annullata.", b.chatId)
+		} else {
+			b.SendMessageOptions(c19.GetNazioneMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
+		}
 	}
 }
 

@@ -29,13 +29,16 @@ import (
 
 	"github.com/NicoNex/echotron"
 	"github.com/thedevsaddam/gojsonq/v2"
+	"github.com/mitchellh/mapstructure"
 )
 
 var jsonpath string
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s-latest.json"
-	files := [3]string{"andamento-nazionale", "province", "regioni"}
+	var csv_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/%s.csv"
+	
+	files := [4]string{"andamento-mondiale", "andamento-nazionale", "province", "regioni"}
 
 	dir := fmt.Sprintf(jsonpath)
 	_, err := os.Stat(dir)
@@ -44,11 +47,21 @@ func Update() {
 	}
 
 	for _, value := range files {
-		var url = fmt.Sprintf(json_url, value)
+		var url, ext string
+		
+		if value == "andamento-mondiale" {
+			// time.Now().Format("01-02-2006")
+			url = fmt.Sprintf(csv_url, "03-27-2020")
+			ext = "csv"
+		} else {
+	
+			url = fmt.Sprintf(json_url, value)
+			ext = "json"
+		}
 
 		var content []byte = echotron.SendGetRequest(url)
-
-		fpath := fmt.Sprintf("%s/%s.json", jsonpath, value)
+		
+		fpath := fmt.Sprintf("%s/%s.%s", jsonpath, value, ext)
 		data, err := os.Create(fpath)
 
 		if err != nil {
@@ -62,6 +75,21 @@ func Update() {
 			log.Println(err)
 		}
 	}
+}
+
+func getNazione(nazione string) *Nazione {
+	var data Nazione
+
+	fpath := fmt.Sprintf("%s/andamento-mondiale.csv", jsonpath)
+	search := gojsonq.New(gojsonq.SetDecoder(&Nazione{})).
+					 File(fpath).
+					 WhereEqual("Country_Region", nazione)
+	if search == nil {
+		return nil
+	} 
+
+	mapstructure.Decode(search, &data)
+	return &data
 }
 
 func getAndamento() Andamento {
@@ -130,6 +158,32 @@ func formatTimestamp(timestamp string) string {
 	}
 
 	return tp.Format("15:04 del 02/01/2006")
+}
+
+func GetNazioneMsg(nazione string) string {
+	data := getNazione(nazione)
+
+	if data == nil {
+		log.Println(data)
+		return "Nessun dato disponibile."
+	}
+
+	msg := fmt.Sprintf(`*Andamento COVID-19 - %s*
+_Dati aggiornati alle %s_`,
+		data.Country_Region,
+		data.Last_Update)
+	
+	if data.Province_State != "" {
+		msg = fmt.Sprintf("%s\nStato: %s", msg, data.Province_State)
+	}
+
+	msg = fmt.Sprintf("%s\nAttualmente positivi: %s\nGuariti: %s\nDeceduti: %s\nTotale positivi: %s",
+		msg,
+		data.Active,
+		data.Recovered,
+		data.Deaths,
+		data.Confirmed)
+	return msg
 }
 
 func GetAndamentoMsg() string {
