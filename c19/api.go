@@ -172,9 +172,9 @@ Totale ospedalizzati: %d`,
 		data.TotaleOspedalizzati,
 	)
 
-	if data.NoteIt != "" {
-		msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
-	}
+	// if data.NoteIt != "" {
+	// 	msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+	// }
 
 	return msg
 }
@@ -210,9 +210,9 @@ Totale ospedalizzati: %d`,
 			data.TotaleOspedalizzati,
 		)
 
-		if data.NoteIt != "" {
-			msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
-		}
+		// if data.NoteIt != "" {
+		// 	msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+		// }
 
 		return msg
 	} else {
