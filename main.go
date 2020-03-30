@@ -21,6 +21,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/NicoNex/covidtron-19000/c19"
 	"github.com/NicoNex/covidtron-19000/cache"
@@ -115,7 +116,7 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 
 func main() {
 	go updateData()
-	token, err := ioutil.ReadFile("./token")
+	token, err := ioutil.ReadFile(fmt.Sprintf("%s/.config/covidtron-19000/token", os.Getenv("HOME")))
 	if err != nil {
 		fmt.Println("error: could not find token file")
 		return
