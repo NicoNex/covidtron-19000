@@ -72,6 +72,7 @@ func getAndamento() Andamento {
 	search := gojsonq.New().
 		File(fpath).
 		First()
+
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
 	return data
