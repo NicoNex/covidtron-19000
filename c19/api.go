@@ -176,7 +176,7 @@ _Dati aggiornati alle %s_
 Attualmente positivi: *%d* (*%%2B%d* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
-Totale positivi: *%d*
+Totale positivi: *%d* (*%%2B%d* da ieri)
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*
@@ -189,6 +189,7 @@ Totale ospedalizzati: *%d*`,
 		data.DimessiGuariti,
 		data.Deceduti,
 		data.TotaleCasi,
+		data.NuoviPositivi,
 		data.Tamponi,
 		data.RicoveratiConSintomi,
 		data.TerapiaIntensiva,
@@ -213,7 +214,7 @@ _Dati aggiornati alle %s_
 Attualmente positivi: *%d* (*%%2B%d* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
-Totale positivi: *%d*
+Totale positivi: *%d* (*%%2B%d* da ieri)
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*
@@ -227,6 +228,7 @@ Totale ospedalizzati: *%d*`,
 			data.DimessiGuariti,
 			data.Deceduti,
 			data.TotaleCasi,
+			data.NuoviPositivi,
 			data.Tamponi,
 			data.RicoveratiConSintomi,
 			data.TerapiaIntensiva,
