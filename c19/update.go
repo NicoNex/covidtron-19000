@@ -31,7 +31,7 @@ import (
 	"github.com/NicoNex/echotron"
 )
 
-var datapath string
+var jsonpath string
 
 var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
 
@@ -51,7 +51,7 @@ func pcmdpcUpdate() {
 		"regioni-latest",
 		"note-it"}
 
-	dir := fmt.Sprintf(datapath)
+	dir := fmt.Sprintf(jsonpath)
 	_, err := os.Stat(dir)
 	if err != nil {
 		os.Mkdir(dir, 0755)
@@ -62,7 +62,7 @@ func pcmdpcUpdate() {
 		url := fmt.Sprintf(json_url, value)
 		var content []byte = echotron.SendGetRequest(url)
 
-		fpath := fmt.Sprintf("%s/%s.json", datapath, value)
+		fpath := fmt.Sprintf("%s/%s.json", jsonpath, value)
 
 		if err := ioutil.WriteFile(fpath, content, 0755); err != nil {
 			log.Println(err)
@@ -76,7 +76,7 @@ func gisandUpdate() {
 			"time_series_covid19_deaths_global.csv",
 			"time_series_covid19_recovered_global.csv"}
 
-	dir := fmt.Sprintf("%s%s", datapath, "/gisanddata/")
+	dir := fmt.Sprintf("%s%s", jsonpath, "/gisanddata/")
 	_, err := os.Stat(dir)
 	if err != nil {
 		os.Mkdir(dir, 0755)

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/NicoNex/covidtron-19000/c19"
 	"github.com/NicoNex/covidtron-19000/cache"

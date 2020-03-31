@@ -32,9 +32,7 @@ import (
 func getNazione(nazione string) *GisandData {
 	var data GisandData
 
-	log.Println(nazione)
-	fpath := fmt.Sprintf("%s/gisanddata.json", datapath)
-	log.Println(fpath)
+	fpath := fmt.Sprintf("%s/gisanddata.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
 		WhereContains("country_region", nazione).
@@ -46,7 +44,6 @@ func getNazione(nazione string) *GisandData {
 
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
-	log.Println(data)
 	return &data
 }
 
@@ -282,5 +279,5 @@ Totale positivi: *%d*`,
 }
 
 func init() {
-	datapath = fmt.Sprintf("%s/.cache/covidtron-19000", os.Getenv("HOME"))
+	jsonpath = fmt.Sprintf("%s/.cache/covidtron-19000", os.Getenv("HOME"))
 }
