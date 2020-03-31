@@ -101,7 +101,7 @@ func gisandParser() {
 			"time_series_covid19_deaths_global.csv",
 			"time_series_covid19_recovered_global.csv"}
 
-	dir := fmt.Sprintf("%s%s", datapath, "/gisanddata/")
+	dir := fmt.Sprintf("%s%s", jsonpath, "/gisanddata/")
 	nations := make(map[int]GisandData)
 
 	_, err := os.Stat(dir)
@@ -158,9 +158,14 @@ func gisandParser() {
 			nations[i] = nation
 		}
 	}
+	json_nations := []GisandData{}
+	
+	for _, value := range nations {
+		json_nations = append(json_nations, value)
+	}
 
-	content, _ := json.Marshal(nations)
-	fpath := fmt.Sprintf("%s/gisanddata.json", datapath)
+	content, _ := json.Marshal(json_nations)
+	fpath := fmt.Sprintf("%s/gisanddata.json", jsonpath)
 
 	if err := ioutil.WriteFile(fpath, content, 0755); err != nil {
 		log.Println(err)

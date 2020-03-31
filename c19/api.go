@@ -37,7 +37,7 @@ func getNazione(nazione string) *GisandData {
 	log.Println(fpath)
 	search := gojsonq.New().
 		File(fpath).
-		Where("country_region", "=", nazione).
+		WhereContains("country_region", nazione).
 		First()
 
 	if search == nil {
@@ -46,6 +46,7 @@ func getNazione(nazione string) *GisandData {
 
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
+	log.Println(data)
 	return &data
 }
 
@@ -141,7 +142,7 @@ func GetNazioneMsg(nazione string) string {
 		return "Nessun dato disponibile."
 	}
 
-	lastDay := len(data.DailyData)
+	lastDay := len(data.DailyData) - 1 
 
 	msg := fmt.Sprintf(`*Andamento COVID-19 - %s*
 _Dati aggiornati il: %s_`,
