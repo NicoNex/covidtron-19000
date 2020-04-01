@@ -33,22 +33,6 @@ type GisandData struct {
 	DailyData			[]DailyData `json:"dailydata"`
 }
 
-/*
-TODO: prossima implementazione dello storage dei dati
-italia struct {
-	giornata [] {
-		andamento-nazionale
-		regiorni [] {
-			andamento regionale
-			province [] {
-				andamento provinciale
-			}
-		}
-	}
-}
-
-*/
-
 type Andamento struct {
 	Data                      string `json:"data"`
 	Deceduti                  int    `json:"deceduti"`

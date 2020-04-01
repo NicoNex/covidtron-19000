@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"encoding/csv"
 	"encoding/json"
+	"bytes"
 	"strconv"
 	//"time"
 
@@ -40,7 +41,6 @@ var csv_prefix = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/mast
 func Update() {
 	pcmdpcUpdate()
 	gisandUpdate()
-	gisandParser()
 }
 
 func pcmdpcUpdate() {
@@ -71,38 +71,13 @@ func pcmdpcUpdate() {
 }
 
 func gisandUpdate() {
-	var csv_file = [3]string{
-			"time_series_covid19_confirmed_global.csv",
-			"time_series_covid19_deaths_global.csv",
-			"time_series_covid19_recovered_global.csv"}
-
-	dir := fmt.Sprintf("%s%s", jsonpath, "/gisanddata/")
-	_, err := os.Stat(dir)
-	if err != nil {
-		os.Mkdir(dir, 0755)
-	}
-
-	for _, file := range csv_file {
-		
-		url := fmt.Sprintf("%s%s", csv_prefix, file)
-		var content []byte = echotron.SendGetRequest(url)
-
-		fpath := fmt.Sprintf("%s%s", dir, file)
-
-		if err := ioutil.WriteFile(fpath, content, 0755); err != nil {
-			log.Println(err)
-		}
-	}
-}
-
-func gisandParser() {
 	csv_files := [3]string{
 			"time_series_covid19_confirmed_global.csv",
 			"time_series_covid19_deaths_global.csv",
 			"time_series_covid19_recovered_global.csv"}
 
-	dir := fmt.Sprintf("%s%s", jsonpath, "/gisanddata/")
-	nations := make(map[int]GisandData)
+	nations := make(map[string]GisandData)
+	dir := fmt.Sprintf(jsonpath)
 
 	_, err := os.Stat(dir)
 	if err != nil {
@@ -110,52 +85,51 @@ func gisandParser() {
 	}
 
 	for _, file := range csv_files {
-		fpath := fmt.Sprintf("%s%s", dir, file)
+		
+		url := fmt.Sprintf("%s%s", csv_prefix, file)
+		content := echotron.SendGetRequest(url)
 
-		data, err := os.Open(fpath)
-		if err != nil {
-			log.Println(err)
-		}
-
-		reader := csv.NewReader(data)
-
+		reader := csv.NewReader(bytes.NewReader(content))
 		csv, _ := reader.ReadAll()
+		
 		day_number := len(csv[0]) - 4
-
-		for i, csv_nation := range csv[1:]{
+		for i, _ := range csv[0:]{
 			
-			nation := GisandData{}
-			if _, value := nations[i]; !value {
-				nation.Province_State = csv_nation[0]
-				nation.Country_Region = csv_nation[1]
-				nation.Lat, _ = strconv.ParseFloat(csv_nation[2], 64)
-				nation.Long, _  = strconv.ParseFloat(csv_nation[3], 64)
-				nation.DailyData = make([]DailyData, day_number)
-			} else {
-				nation = nations[i]
-			}
-			
-			for j := 4; j < len(csv_nation); j++ {
-				
-				if nation.DailyData[j-4].Date == "" {
-					nation.DailyData[j-4].Date = csv[0][j]		
+			if i > 0 {
+				key := csv[i][0]+csv[i][1]
+
+				nation := GisandData{}
+				if _, value := nations[key]; !value {
+					nation.Province_State = csv[i][0]
+					nation.Country_Region = csv[i][1]
+					nation.Lat, _ = strconv.ParseFloat(csv[i][2], 64)
+					nation.Long, _  = strconv.ParseFloat(csv[i][3], 64)
+					nation.DailyData = make([]DailyData, day_number)
+				} else {
+					nation = nations[key]
 				}
-				
-				people, _ := strconv.Atoi(csv_nation[j])
-				
-				switch file {
-				case csv_files[0]:
-					if nation.DailyData[j-4].Confirmed < people { nation.DailyData[j-4].Confirmed = people }
 
-				case csv_files[1]:
-					if nation.DailyData[j-4].Deaths < people { nation.DailyData[j-4].Deaths = people }
+				for j := 4; j < len(csv[i]); j++ {
 
-				case csv_files[2]:
-					if nation.DailyData[j-4].Recovered < people { nation.DailyData[j-4].Recovered = people }
+					if nation.DailyData[j-4].Date == "" {
+						nation.DailyData[j-4].Date = csv[0][j]		
+					}
+					people, _ := strconv.Atoi(csv[i][j])
 
+					switch file {
+					case csv_files[0]:
+						nation.DailyData[j-4].Confirmed = people
+
+					case csv_files[1]:
+						nation.DailyData[j-4].Deaths = people
+
+					case csv_files[2]:
+						nation.DailyData[j-4].Recovered = people
+
+					}
 				}
+				nations[key] = nation
 			}
-			nations[i] = nation
 		}
 	}
 	json_nations := []GisandData{}
