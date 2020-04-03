@@ -21,6 +21,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/NicoNex/covidtron-19000/c19"
@@ -133,7 +134,7 @@ func (b bot) GetKeyboard(data []string, cols int) echotron.InlineKeyboard {
 
 func main() {
 	go updateData()
-	token, err := ioutil.ReadFile("./token")
+	token, err := ioutil.ReadFile(fmt.Sprintf("%s/.config/covidtron-19000/token", os.Getenv("HOME")))
 	if err != nil {
 		fmt.Println("error: could not find token file")
 		return

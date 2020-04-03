@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/jasonlvhit/gocron"
+	"time"
+
+	"github.com/go-co-op/gocron"
 	"github.com/NicoNex/covidtron-19000/c19"
 )
 
@@ -11,7 +13,10 @@ import (
 
 func updateData() {
 	c19.Update()
-	gocron.Every(1).Day().At("18:30").Do(c19.Update)
+
+	location, _ := time.LoadLocation("Europe/Rome")
+	scheduler := gocron.NewScheduler(location)
+	scheduler.Every(1).Day().At("18:30").Do(c19.Update)
 	
-	<- gocron.Start()
+	<- scheduler.Start()
 }

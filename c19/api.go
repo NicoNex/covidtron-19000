@@ -25,6 +25,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/NicoNex/echotron"
@@ -34,8 +35,8 @@ import (
 var jsonpath string
 
 func Update() {
-	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s-latest.json"
-	files := [3]string{"andamento-nazionale", "province", "regioni"}
+	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
+	files := [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note-it"}
 
 	dir := fmt.Sprintf(jsonpath)
 	_, err := os.Stat(dir)
@@ -67,10 +68,11 @@ func Update() {
 func getAndamento() Andamento {
 	var data Andamento
 
-	fpath := fmt.Sprintf("%s/andamento-nazionale.json", jsonpath)
+	fpath := fmt.Sprintf("%s/andamento-nazionale-latest.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
 		First()
+
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
 	return data
@@ -79,7 +81,7 @@ func getAndamento() Andamento {
 func getRegione(regione string) *Regione {
 	var data Regione
 
-	fpath := fmt.Sprintf("%s/regioni.json", jsonpath)
+	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
 		WhereContains("denominazione_regione", regione).
@@ -97,7 +99,7 @@ func getRegione(regione string) *Regione {
 func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
-	fpath := fmt.Sprintf("%s/province.json", jsonpath)
+	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
 
 	var search interface{}
 
@@ -122,6 +124,21 @@ func getProvincia(provincia string) *Provincia {
 	return &data
 }
 
+func getNota(codice string) Nota {
+	var data Nota
+
+	fpath := fmt.Sprintf("%s/note-it.json", jsonpath)
+
+	search := gojsonq.New().
+		File(fpath).
+		WhereEqual("codice", codice).
+		First()
+
+	bytes, _ := json.Marshal(search)
+	json.Unmarshal(bytes, &data)
+	return data
+}
+
 func formatTimestamp(timestamp string) string {
 	tp, err := time.Parse(time.RFC3339, timestamp+"Z")
 
@@ -132,28 +149,47 @@ func formatTimestamp(timestamp string) string {
 	return tp.Format("15:04 del 02/01/2006")
 }
 
+func formatNote(codici string) string {
+	var noteData []Nota
+
+	notes := strings.Split(codici, ";")
+
+	for _, note := range notes {
+		noteData = append(noteData, getNota(note))
+	}
+
+	msg := "\n\n*Note:*"
+
+	for _, note := range noteData {
+		msg += fmt.Sprintf("\n%s - %s\n_%s_", note.Regione, note.TipologiaAvviso, note.Note)
+	}
+
+	return msg
+}
+
 func GetAndamentoMsg() string {
 	data := getAndamento()
 
 	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_
 
-Attualmente positivi: %d (%%2B%d da ieri)
-Guariti: %d
-Deceduti: %d
-Totale positivi: %d
+Attualmente positivi: *%d* (*%%2B%d* da ieri)
+Guariti: *%d*
+Deceduti: *%d*
+Totale positivi: *%d* (*%%2B%d* da ieri)
 
-Tamponi totali: %d
-Ricoverati con sintomi: %d
-In terapia intensiva: %d
-In isolamento domiciliare: %d
-Totale ospedalizzati: %d`,
+Tamponi totali: *%d*
+Ricoverati con sintomi: *%d*
+In terapia intensiva: *%d*
+In isolamento domiciliare: *%d*
+Totale ospedalizzati: *%d*`,
 		formatTimestamp(data.Data),
-		data.TotaleAttualmentePositivi,
-		data.NuoviAttualmentePositivi,
+		data.TotalePositivi,
+		data.VariazioneTotalePositivi,
 		data.DimessiGuariti,
 		data.Deceduti,
 		data.TotaleCasi,
+		data.NuoviPositivi,
 		data.Tamponi,
 		data.RicoveratiConSintomi,
 		data.TerapiaIntensiva,
@@ -162,7 +198,7 @@ Totale ospedalizzati: %d`,
 	)
 
 	if data.NoteIt != "" {
-		msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+		msg += formatNote(data.NoteIt)
 	}
 
 	return msg
@@ -175,23 +211,24 @@ func GetRegioneMsg(regione string) string {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_
 
-Attualmente positivi: %d (%%2B%d da ieri)
-Guariti: %d
-Deceduti: %d
-Totale positivi: %d
+Attualmente positivi: *%d* (*%%2B%d* da ieri)
+Guariti: *%d*
+Deceduti: *%d*
+Totale positivi: *%d* (*%%2B%d* da ieri)
 
-Tamponi totali: %d
-Ricoverati con sintomi: %d
-In terapia intensiva: %d
-In isolamento domiciliare: %d
-Totale ospedalizzati: %d`,
+Tamponi totali: *%d*
+Ricoverati con sintomi: *%d*
+In terapia intensiva: *%d*
+In isolamento domiciliare: *%d*
+Totale ospedalizzati: *%d*`,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
-			data.TotaleAttualmentePositivi,
-			data.NuoviAttualmentePositivi,
+			data.TotalePositivi,
+			data.VariazioneTotalePositivi,
 			data.DimessiGuariti,
 			data.Deceduti,
 			data.TotaleCasi,
+			data.NuoviPositivi,
 			data.Tamponi,
 			data.RicoveratiConSintomi,
 			data.TerapiaIntensiva,
@@ -200,7 +237,7 @@ Totale ospedalizzati: %d`,
 		)
 
 		if data.NoteIt != "" {
-			msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+			msg += formatNote(data.NoteIt)
 		}
 
 		return msg
@@ -216,7 +253,7 @@ func GetProvinciaMsg(provincia string) string {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Provincia di %s (%s)*
 _Dati aggiornati alle %s_
 
-Totale positivi: %d`,
+Totale positivi: *%d*`,
 			data.DenominazioneProvincia,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
@@ -224,7 +261,7 @@ Totale positivi: %d`,
 		)
 
 		if data.NoteIt != "" {
-			msg = fmt.Sprintf("%s\n\nNote: %s", msg, data.NoteIt)
+			msg += formatNote(data.NoteIt)
 		}
 
 		return msg
