@@ -140,7 +140,11 @@ _Dati aggiornati alle %s_
 Attualmente positivi: *%d* (*%%2B%d* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
+<<<<<<< HEAD
 Totale positivi: *%d*
+=======
+Totale positivi: *%d* (*%%2B%d* da ieri)
+>>>>>>> c098dada69b9670b27405415577b5b746b94eba3
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*
@@ -148,11 +152,12 @@ In terapia intensiva: *%d*
 In isolamento domiciliare: *%d*
 Totale ospedalizzati: *%d*`,
 		formatTimestamp(data.Data),
-		data.TotaleAttualmentePositivi,
-		data.NuoviAttualmentePositivi,
+		data.TotalePositivi,
+		data.VariazioneTotalePositivi,
 		data.DimessiGuariti,
 		data.Deceduti,
 		data.TotaleCasi,
+		data.NuoviPositivi,
 		data.Tamponi,
 		data.RicoveratiConSintomi,
 		data.TerapiaIntensiva,
@@ -177,7 +182,11 @@ _Dati aggiornati alle %s_
 Attualmente positivi: *%d* (*%%2B%d* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
+<<<<<<< HEAD
 Totale positivi: *%d*
+=======
+Totale positivi: *%d* (*%%2B%d* da ieri)
+>>>>>>> c098dada69b9670b27405415577b5b746b94eba3
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*
@@ -186,11 +195,12 @@ In isolamento domiciliare: *%d*
 Totale ospedalizzati: *%d*`,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
-			data.TotaleAttualmentePositivi,
-			data.NuoviAttualmentePositivi,
+			data.TotalePositivi,
+			data.VariazioneTotalePositivi,
 			data.DimessiGuariti,
 			data.Deceduti,
 			data.TotaleCasi,
+			data.NuoviPositivi,
 			data.Tamponi,
 			data.RicoveratiConSintomi,
 			data.TerapiaIntensiva,
