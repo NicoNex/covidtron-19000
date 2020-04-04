@@ -56,35 +56,45 @@ func NewBot(engine echotron.Api, chatId int64) echotron.Bot {
 }
 
 func (b *bot) Update(update *echotron.Update) {
+	var text string
+
+	if update.Message != nil {
+		text = update.Message.Text
+	} else if update.EditedMessage != nil {
+		text = update.EditedMessage.Text
+	} else {
+		return
+	}
+
 	switch b.state {
 	case idle:
-		if update.Message.Text == "/start" {
+		if text == "/start" {
 			b.sendIntroduction()
-		} else if update.Message.Text == "/andamento" {
+		} else if text == "/andamento" {
 			b.SendMessageOptions(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
-		} else if update.Message.Text == "/regione" {
+		} else if text == "/regione" {
 			b.SendMessage("Inserisci il nome di una regione.", b.chatId)
 			b.state = regione
-		} else if update.Message.Text == "/provincia" {
+		} else if text == "/provincia" {
 			b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
 			b.state = provincia
-		} else if update.Message.Text == "/users" {
+		} else if text == "/users" {
 			b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatId)
 		}
 
 	case regione:
-		if update.Message.Text == "/cancel" {
+		if text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
 		} else {
-			b.SendMessageOptions(c19.GetRegioneMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
+			b.SendMessageOptions(c19.GetRegioneMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 		b.state = idle
 
 	case provincia:
-		if update.Message.Text == "/cancel" {
+		if text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
 		} else {
-			b.SendMessageOptions(c19.GetProvinciaMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
+			b.SendMessageOptions(c19.GetProvinciaMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 		b.state = idle
 	}
