@@ -19,51 +19,15 @@
 package c19
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/NicoNex/echotron"
 	"github.com/thedevsaddam/gojsonq/v2"
 )
-
-var jsonpath string
-
-func Update() {
-	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
-	files := [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note-it"}
-
-	dir := fmt.Sprintf(jsonpath)
-	_, err := os.Stat(dir)
-	if err != nil {
-		os.Mkdir(dir, 0755)
-	}
-
-	for _, value := range files {
-		var url = fmt.Sprintf(json_url, value)
-
-		var content []byte = echotron.SendGetRequest(url)
-
-		fpath := fmt.Sprintf("%s/%s.json", jsonpath, value)
-		data, err := os.Create(fpath)
-
-		if err != nil {
-			log.Println(err)
-		}
-		defer data.Close()
-
-		_, err = io.Copy(data, bytes.NewReader(content))
-
-		if err != nil {
-			log.Println(err)
-		}
-	}
-}
 
 func getAndamento() Andamento {
 	var data Andamento
@@ -176,7 +140,11 @@ _Dati aggiornati alle %s_
 Attualmente positivi: *%d* (*%%2B%d* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
+<<<<<<< HEAD
+Totale positivi: *%d*
+=======
 Totale positivi: *%d* (*%%2B%d* da ieri)
+>>>>>>> c098dada69b9670b27405415577b5b746b94eba3
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*
@@ -214,7 +182,11 @@ _Dati aggiornati alle %s_
 Attualmente positivi: *%d* (*%%2B%d* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
+<<<<<<< HEAD
+Totale positivi: *%d*
+=======
 Totale positivi: *%d* (*%%2B%d* da ieri)
+>>>>>>> c098dada69b9670b27405415577b5b746b94eba3
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*

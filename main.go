@@ -1,6 +1,6 @@
 /*
  * Covidtron-19000 - a bot for monitoring data about COVID-19.
- * Copyright (C) 2020 Nicolò Santamaria, Michele Dimaggio.
+ * Copyright (C) 2020 Nicolò Santamaria, Michele Dimaggio, Alessandro Ianne.
  *
  * Covidtron-19000 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ const (
 	idle botState = iota
 	regione
 	provincia
+	nazione
 )
 
 type bot struct {
@@ -79,6 +80,9 @@ func (b *bot) Update(update *echotron.Update) {
 		} else if text == "/provincia" {
 			b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
 			b.state = provincia
+		} else if update.Message.Text == "/nazione" {
+			b.SendMessage("Inserisci il nome di una nazione.", b.chatId)
+			b.state = nazione
 		} else if text == "/users" {
 			b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatId)
 		}
@@ -98,6 +102,15 @@ func (b *bot) Update(update *echotron.Update) {
 			b.SendMessageOptions(c19.GetProvinciaMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 		b.state = idle
+
+	case nazione:
+		if update.Message.Text == "/cancel" {
+			b.SendMessage("Operazione annullata.", b.chatId)
+		} else {
+			b.SendMessageOptions(c19.GetNazioneMsg(update.Message.Text), b.chatId, echotron.PARSE_MARKDOWN)
+		}
+		b.state = idle
+
 	}
 }
 
@@ -106,12 +119,13 @@ func (b bot) sendIntroduction() {
 
 *Comandi:*
 /start: visualizza questo messaggio
-/andamento: visualizza andamento nazionale
-/regione: visualizza andamento regione
-/provincia: visualizza andamento provincia
+/andamento: visualizza andamento nazionale (Italia)
+/regione: visualizza andamento regione (Italia)
+/provincia: visualizza andamento provincia (Italia)
+/nazione: visualizza andamento nazionale (resto del mondo)
 /cancel: annulla l'operazione in corso
 
-Bot creato da @NicoNex e @Dj\_Mike238.
+Bot creato da @NicoNex, @Dj\_Mike238 e @the\_real\_stego.
 Basato su [echotron](https://github.com/NicoNex/echotron).
 
 Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com).`,
