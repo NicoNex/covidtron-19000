@@ -1,6 +1,6 @@
 /*
  * Covidtron-19000 - a bot for monitoring data about COVID-19.
- * Copyright (C) 2020 Michele Dimaggio.
+ * Copyright (C) 2020 Michele Dimaggio, Alessandro Ianne.
  *
  * Covidtron-19000 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,21 @@
  */
 
 package c19
+
+type DailyData struct {
+	Date 			string		`json:"date"`
+	Confirmed		int 		`json:"confirmed"`
+	Deaths			int 		`json:"deaths"`
+	Recovered 		int 		`json:"recovered"`
+}
+
+type GisandData struct {			
+	Province_State		string		`json:"province_state"`
+	Country_Region		string		`json:"country_region"`
+	Lat 				float64		`json:"lat"`
+	Long 				float64		`json:"long"`
+	DailyData			[]DailyData `json:"dailydata"`
+}
 
 type Andamento struct {
 	Data                     string `json:"data"`
