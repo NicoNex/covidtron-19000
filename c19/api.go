@@ -167,16 +167,26 @@ func formatNote(codici string) string {
 	return msg
 }
 
+func plus(value int) string {
+	plus := ""
+
+	if value > 0 {
+		plus = "%2B"
+	}
+
+	return fmt.Sprintf("%s%d", plus, value)
+}
+
 func GetAndamentoMsg() string {
 	data := getAndamento()
 
 	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_
 
-Attualmente positivi: *%d* (*%%2B%d* da ieri)
+Attualmente positivi: *%d* (*%s* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
-Totale positivi: *%d* (*%%2B%d* da ieri)
+Totale positivi: *%d* (*%s* da ieri)
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*
@@ -185,11 +195,11 @@ In isolamento domiciliare: *%d*
 Totale ospedalizzati: *%d*`,
 		formatTimestamp(data.Data),
 		data.TotalePositivi,
-		data.VariazioneTotalePositivi,
+		plus(data.VariazioneTotalePositivi),
 		data.DimessiGuariti,
 		data.Deceduti,
 		data.TotaleCasi,
-		data.NuoviPositivi,
+		plus(data.NuoviPositivi),
 		data.Tamponi,
 		data.RicoveratiConSintomi,
 		data.TerapiaIntensiva,
@@ -211,10 +221,10 @@ func GetRegioneMsg(regione string) string {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_
 
-Attualmente positivi: *%d* (*%%2B%d* da ieri)
+Attualmente positivi: *%d* (*%s* da ieri)
 Guariti: *%d*
 Deceduti: *%d*
-Totale positivi: *%d* (*%%2B%d* da ieri)
+Totale positivi: *%d* (*%s* da ieri)
 
 Tamponi totali: *%d*
 Ricoverati con sintomi: *%d*
@@ -224,11 +234,11 @@ Totale ospedalizzati: *%d*`,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
 			data.TotalePositivi,
-			data.VariazioneTotalePositivi,
+			plus(data.VariazioneTotalePositivi),
 			data.DimessiGuariti,
 			data.Deceduti,
 			data.TotaleCasi,
-			data.NuoviPositivi,
+			plus(data.NuoviPositivi),
 			data.Tamponi,
 			data.RicoveratiConSintomi,
 			data.TerapiaIntensiva,
