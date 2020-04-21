@@ -19,6 +19,7 @@
 package c19
 
 type Andamento struct {
+	CasiTestati              int    `json:"casi_testati"`
 	Data                     string `json:"data"`
 	Deceduti                 int    `json:"deceduti"`
 	DimessiGuariti           int    `json:"dimessi_guariti"`
@@ -35,6 +36,7 @@ type Andamento struct {
 }
 
 type Regione struct {
+	CasiTestati              int    `json:"casi_testati"`
 	Data                     string `json:"data"`
 	DenominazioneRegione     string `json:"denominazione_regione"`
 	RicoveratiConSintomi     int    `json:"ricoverati_con_sintomi"`

@@ -189,6 +189,7 @@ Deceduti: *%d*
 Totale positivi: *%d* (*%s* da ieri)
 
 Tamponi totali: *%d*
+Soggetti sottoposti al tampone: *%d*
 Ricoverati con sintomi: *%d*
 In terapia intensiva: *%d*
 In isolamento domiciliare: *%d*
@@ -201,6 +202,7 @@ Totale ospedalizzati: *%d*`,
 		data.TotaleCasi,
 		plus(data.NuoviPositivi),
 		data.Tamponi,
+		data.CasiTestati,
 		data.RicoveratiConSintomi,
 		data.TerapiaIntensiva,
 		data.IsolamentoDomiciliare,
@@ -227,6 +229,7 @@ Deceduti: *%d*
 Totale positivi: *%d* (*%s* da ieri)
 
 Tamponi totali: *%d*
+Soggetti sottoposti al tampone: *%d*
 Ricoverati con sintomi: *%d*
 In terapia intensiva: *%d*
 In isolamento domiciliare: *%d*
@@ -240,6 +243,7 @@ Totale ospedalizzati: *%d*`,
 			data.TotaleCasi,
 			plus(data.NuoviPositivi),
 			data.Tamponi,
+			data.CasiTestati,
 			data.RicoveratiConSintomi,
 			data.TerapiaIntensiva,
 			data.IsolamentoDomiciliare,
