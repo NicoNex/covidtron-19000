@@ -171,7 +171,7 @@ func plus(value int) string {
 	plus := ""
 
 	if value > 0 {
-		plus = "%2B"
+		plus = "+"
 	}
 
 	return fmt.Sprintf("%s%d", plus, value)
