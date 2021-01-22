@@ -21,6 +21,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/NicoNex/covidtron-19000/c19"
@@ -131,7 +132,7 @@ func readToken() string {
 	path := fmt.Sprintf("%s/.config/covidtron-19000/token", os.Getenv("HOME"))
 	tok, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Println("error: could not find token file")
+		log.Println("error: could not find token file")
 	}
 	return string(tok)
 }
