@@ -31,6 +31,7 @@ import (
 const BOT_NAME = "covidtron-19000"
 
 type botState int
+
 const (
 	idle botState = iota
 	regione
@@ -39,23 +40,25 @@ const (
 
 type bot struct {
 	chatId int64
-	state botState
+	state  botState
 	echotron.Api
 }
 
 var cc *cache.Cache
 
-func NewBot(engine echotron.Api, chatId int64) echotron.Bot {
+func newBot(chatId int64) echotron.Bot {
 	go cc.SaveSession(chatId)
 
-	return &bot{
-		chatId,
-		idle,
-		engine,
+	b := &bot{
+		chatId: chatId,
+		state:  idle,
+		Api:    echotron.NewApi(readToken()),
 	}
+
+	return b
 }
 
-func (b *bot) Update(update *echotron.Update) {
+func (b bot) Update(update *echotron.Update) {
 	var text string
 
 	if update.Message != nil {
@@ -71,7 +74,7 @@ func (b *bot) Update(update *echotron.Update) {
 		if text == "/start" {
 			b.sendIntroduction()
 		} else if text == "/andamento" {
-			b.SendMessageOptions(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
+			b.SendMessage(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
 		} else if text == "/regione" {
 			b.SendMessage("Inserisci il nome di una regione.", b.chatId)
 			b.state = regione
@@ -86,7 +89,7 @@ func (b *bot) Update(update *echotron.Update) {
 		if text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
 		} else {
-			b.SendMessageOptions(c19.GetRegioneMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
+			b.SendMessage(c19.GetRegioneMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 		b.state = idle
 
@@ -94,7 +97,7 @@ func (b *bot) Update(update *echotron.Update) {
 		if text == "/cancel" {
 			b.SendMessage("Operazione annullata.", b.chatId)
 		} else {
-			b.SendMessageOptions(c19.GetProvinciaMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
+			b.SendMessage(c19.GetProvinciaMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
 		}
 		b.state = idle
 	}
@@ -124,20 +127,22 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 	)
 }
 
-func main() {
-	go updateData()
-	token, err := ioutil.ReadFile(fmt.Sprintf("%s/.config/covidtron-19000/token", os.Getenv("HOME")))
+func readToken() string {
+	path := fmt.Sprintf("%s/.config/covidtron-19000/token", os.Getenv("HOME"))
+	tok, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("error: could not find token file")
-		return
 	}
+	return string(tok)
+}
 
+func main() {
 	cc = cache.NewCache(BOT_NAME)
-	dsp := echotron.NewDispatcher(string(token), NewBot)
+	dsp := echotron.NewDispatcher(readToken(), newBot)
 
 	for _, id := range cc.GetSessions() {
 		dsp.AddSession(id)
 	}
 
-	dsp.Run()
+	dsp.Poll()
 }
