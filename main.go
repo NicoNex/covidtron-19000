@@ -50,13 +50,11 @@ var cc *cache.Cache
 func newBot(chatId int64) echotron.Bot {
 	go cc.SaveSession(chatId)
 
-	b := &bot{
-		chatId: chatId,
-		state:  idle,
-		Api:    echotron.NewApi(readToken()),
+	return &bot{
+		chatId,
+		idle,
+		echotron.NewApi(readToken()),
 	}
-
-	return b
 }
 
 func (b bot) Update(update *echotron.Update) {
