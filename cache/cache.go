@@ -27,13 +27,14 @@ import (
 )
 
 type Cache struct {
-	botName  string
-	Sessions []int64 `json:"sessions"`
+	botName      string
+	Sessions     []int64 `json:"sessions"`
+	LatestCommit string  `json:"latest_commit"`
 }
 
 var cachepath string
 
-func NewCache(bname string) *Cache {
+func LoadCache(bname string) *Cache {
 	var cache = &Cache{botName: bname}
 
 	data, err := ioutil.ReadFile(cachepath)
@@ -104,6 +105,25 @@ func (c Cache) GetSessions() []int64 {
 
 func (c Cache) CountSessions() int {
 	return len(c.Sessions)
+}
+
+func (c Cache) GetLatestCommit() string {
+	return c.LatestCommit
+}
+
+func (c Cache) SaveLatestCommit(sha string) {
+	c.LatestCommit = sha
+
+	b, err := json.Marshal(c)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = ioutil.WriteFile(cachepath, b, 0644)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func init() {
