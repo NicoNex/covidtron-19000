@@ -65,17 +65,7 @@ func (c Cache) isin(s int64) bool {
 func (c *Cache) SaveSession(s int64) {
 	if !c.isin(s) {
 		c.Sessions = append(c.Sessions, s)
-
-		b, err := json.Marshal(c)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		err = ioutil.WriteFile(cachepath, b, 0644)
-		if err != nil {
-			log.Println(err)
-		}
+		c.writeCache()
 	}
 }
 
@@ -87,16 +77,7 @@ func (c *Cache) DelSession(s int64) {
 		}
 	}
 
-	b, err := json.Marshal(c)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = ioutil.WriteFile(cachepath, b, 0644)
-	if err != nil {
-		log.Println(err)
-	}
+	c.writeCache()
 }
 
 func (c Cache) GetSessions() []int64 {
@@ -113,7 +94,10 @@ func (c Cache) GetLatestCommit() string {
 
 func (c Cache) SaveLatestCommit(sha string) {
 	c.LatestCommit = sha
+	c.writeCache()
+}
 
+func (c Cache) writeCache() {
 	b, err := json.Marshal(c)
 	if err != nil {
 		log.Println(err)
