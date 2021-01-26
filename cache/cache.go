@@ -27,13 +27,14 @@ import (
 )
 
 type Cache struct {
-	botName  string
-	Sessions []int64 `json:"sessions"`
+	botName      string
+	Sessions     []int64 `json:"sessions"`
+	LatestCommit string  `json:"latest_commit"`
 }
 
 var cachepath string
 
-func NewCache(bname string) *Cache {
+func LoadCache(bname string) *Cache {
 	var cache = &Cache{botName: bname}
 
 	data, err := ioutil.ReadFile(cachepath)
@@ -64,17 +65,7 @@ func (c Cache) isin(s int64) bool {
 func (c *Cache) SaveSession(s int64) {
 	if !c.isin(s) {
 		c.Sessions = append(c.Sessions, s)
-
-		b, err := json.Marshal(c)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		err = ioutil.WriteFile(cachepath, b, 0644)
-		if err != nil {
-			log.Println(err)
-		}
+		c.writeCache()
 	}
 }
 
@@ -86,6 +77,27 @@ func (c *Cache) DelSession(s int64) {
 		}
 	}
 
+	c.writeCache()
+}
+
+func (c Cache) GetSessions() []int64 {
+	return c.Sessions
+}
+
+func (c Cache) CountSessions() int {
+	return len(c.Sessions)
+}
+
+func (c Cache) GetLatestCommit() string {
+	return c.LatestCommit
+}
+
+func (c Cache) SaveLatestCommit(sha string) {
+	c.LatestCommit = sha
+	c.writeCache()
+}
+
+func (c Cache) writeCache() {
 	b, err := json.Marshal(c)
 	if err != nil {
 		log.Println(err)
@@ -96,14 +108,6 @@ func (c *Cache) DelSession(s int64) {
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-func (c Cache) GetSessions() []int64 {
-	return c.Sessions
-}
-
-func (c Cache) CountSessions() int {
-	return len(c.Sessions)
 }
 
 func init() {

@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/NicoNex/covidtron-19000/c19"
 	"github.com/NicoNex/covidtron-19000/cache"
@@ -126,6 +127,24 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 	)
 }
 
+func ticker(tch <-chan time.Time) {
+	for _ = range tch {
+		updateData()
+	}
+}
+
+func updateData() {
+	cc = cache.LoadCache(BOT_NAME)
+
+	sha := cc.GetSha()
+	latest := cc.GetLatestCommit()
+
+	if latest != sha {
+		c19.Update()
+		cc.SaveLatestCommit(sha)
+	}
+}
+
 func readToken() string {
 	path := fmt.Sprintf("%s/.config/covidtron-19000/token", os.Getenv("HOME"))
 	tok, err := ioutil.ReadFile(path)
@@ -136,7 +155,9 @@ func readToken() string {
 }
 
 func main() {
-	cc = cache.NewCache(BOT_NAME)
+	updateData()
+	go ticker(time.Tick(time.Minute * 10))
+
 	dsp := echotron.NewDispatcher(readToken(), newBot)
 
 	for _, id := range cc.GetSessions() {
