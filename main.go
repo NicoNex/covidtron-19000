@@ -130,8 +130,10 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 }
 
 func ticker(tch <-chan time.Time) {
-	for _ = range tch {
-		updateData()
+	for t := range tch {
+		if t.Hour() >= 16 && t.Hour() <= 19 {
+			updateData()
+		}
 	}
 }
 
