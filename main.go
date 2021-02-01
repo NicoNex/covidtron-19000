@@ -32,17 +32,12 @@ import (
 
 const BOT_NAME = "covidtron-19000"
 
-type botState int
-
-const (
-	idle botState = iota
-	regione
-	provincia
-)
+// Recursive definition of the state-function type.
+type stateFn func(*echotron.Update) stateFn
 
 type bot struct {
 	chatId int64
-	state  botState
+	state  stateFn
 	echotron.Api
 }
 
@@ -51,56 +46,63 @@ var cc *cache.Cache
 func newBot(chatId int64) echotron.Bot {
 	go cc.SaveSession(chatId)
 
-	return &bot{
-		chatId,
-		idle,
-		echotron.NewApi(readToken()),
+	b := &bot{
+		chatId: chatId,
+		Api:    echotron.NewApi(readToken()),
 	}
+	b.state = b.handleMessage
+	return b
 }
 
-func (b bot) Update(update *echotron.Update) {
-	var text string
+func (b bot) handleRegione(update *echotron.Update) stateFn {
+	b.SendMessage(
+		c19.GetRegioneMsg(extractText(update)),
+		b.chatId,
+		echotron.PARSE_MARKDOWN,
+	)
+	return b.handleMessage
+}
 
-	if update.Message != nil {
-		text = update.Message.Text
-	} else if update.EditedMessage != nil {
-		text = update.EditedMessage.Text
-	} else {
+func (b bot) handleProvincia(update *echotron.Update) stateFn {
+	b.SendMessage(
+		c19.GetProvinciaMsg(extractText(update)),
+		b.chatId,
+		echotron.PARSE_MARKDOWN,
+	)
+	return b.handleMessage
+}
+
+func (b bot) handleMessage(update *echotron.Update) stateFn {
+	switch cmd := extractText(update); cmd {
+	case "/start":
+		b.sendIntroduction()
+
+	case "/andamento":
+		b.SendMessage(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
+
+	case "/regione":
+		b.SendMessage("Inserisci il nome di una regione.", b.chatId)
+		return b.handleRegione
+
+	case "/provincia":
+		b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
+		return b.handleProvincia
+
+	case "/users":
+		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatId)
+	}
+
+	return b.handleMessage
+}
+
+func (b *bot) Update(update *echotron.Update) {
+	if extractText(update) == "/cancel" {
+		go b.SendMessage("Operazione annullata.", b.chatId)
+		b.state = b.handleMessage
 		return
 	}
 
-	switch b.state {
-	case idle:
-		if text == "/start" {
-			b.sendIntroduction()
-		} else if text == "/andamento" {
-			b.SendMessage(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
-		} else if text == "/regione" {
-			b.SendMessage("Inserisci il nome di una regione.", b.chatId)
-			b.state = regione
-		} else if text == "/provincia" {
-			b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
-			b.state = provincia
-		} else if text == "/users" {
-			b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatId)
-		}
-
-	case regione:
-		if text == "/cancel" {
-			b.SendMessage("Operazione annullata.", b.chatId)
-		} else {
-			b.SendMessage(c19.GetRegioneMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
-		}
-		b.state = idle
-
-	case provincia:
-		if text == "/cancel" {
-			b.SendMessage("Operazione annullata.", b.chatId)
-		} else {
-			b.SendMessage(c19.GetProvinciaMsg(text), b.chatId, echotron.PARSE_MARKDOWN)
-		}
-		b.state = idle
-	}
+	b.state = b.state(update)
 }
 
 func (b bot) sendIntroduction() {
@@ -152,6 +154,15 @@ func readToken() string {
 		log.Println("error: could not find token file")
 	}
 	return string(tok)
+}
+
+func extractText(update *echotron.Update) string {
+	if update.Message != nil {
+		return update.Message.Text
+	} else if update.EditedMessage != nil {
+		return update.EditedMessage.Text
+	}
+	return ""
 }
 
 func main() {
