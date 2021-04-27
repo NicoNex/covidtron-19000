@@ -1,4 +1,4 @@
-github.com/NicoNex/echotron v0.0.0-20210118115726-e2804682d18d h1:riU/wnBQlSAEd2VvsNc2kPH+TMJWsZgQiF4NmgQEds0=
-github.com/NicoNex/echotron v0.0.0-20210118115726-e2804682d18d/go.mod h1:zxoAs5lwweto2wTSWOK8VI2oRWxTeQ/RmMvHXhNSp5g=
+github.com/NicoNex/echotron/v2 v2.4.0 h1:iXk67bpP+PNJKNK8ps8ZspTIJXQ9skAhWWNaVNyKW1U=
+github.com/NicoNex/echotron/v2 v2.4.0/go.mod h1:kc+G8z8bBc2MJAxgkPIZcF9Lf0dbCVIX6copQ302nWU=
 github.com/thedevsaddam/gojsonq/v2 v2.5.2 h1:CoMVaYyKFsVj6TjU6APqAhAvC07hTI6IQen8PHzHYY0=
 github.com/thedevsaddam/gojsonq/v2 v2.5.2/go.mod h1:bv6Xa7kWy82uT0LnXPE2SzGqTj33TAEeR560MdJkiXs=

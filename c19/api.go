@@ -24,11 +24,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/NicoNex/echotron"
 	"github.com/thedevsaddam/gojsonq/v2"
 )
 
@@ -45,9 +45,18 @@ func Update() {
 	}
 
 	for _, value := range files {
-		var url = fmt.Sprintf(json_url, value)
+		resp, err := http.Get(fmt.Sprintf(json_url, value))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		defer resp.Body.Close()
 
-		var content []byte = echotron.SendGetRequest(url)
+		content, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 
 		fpath := fmt.Sprintf("%s/%s.json", jsonpath, value)
 		data, err := os.Create(fpath)

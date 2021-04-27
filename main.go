@@ -27,7 +27,7 @@ import (
 
 	"github.com/NicoNex/covidtron-19000/c19"
 	"github.com/NicoNex/covidtron-19000/cache"
-	"github.com/NicoNex/echotron"
+	"github.com/NicoNex/echotron/v2"
 )
 
 const BOT_NAME = "covidtron-19000"
@@ -38,7 +38,7 @@ type stateFn func(*echotron.Update) stateFn
 type bot struct {
 	chatId int64
 	state  stateFn
-	echotron.Api
+	echotron.API
 }
 
 var cc *cache.Cache
@@ -48,7 +48,7 @@ func newBot(chatId int64) echotron.Bot {
 
 	b := &bot{
 		chatId: chatId,
-		Api:    echotron.NewApi(readToken()),
+		API:    echotron.NewAPI(readToken()),
 	}
 	b.state = b.handleMessage
 	return b
@@ -58,7 +58,7 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 	b.SendMessage(
 		c19.GetRegioneMsg(extractText(update)),
 		b.chatId,
-		echotron.PARSE_MARKDOWN,
+		echotron.ParseMarkdown,
 	)
 	return b.handleMessage
 }
@@ -67,7 +67,7 @@ func (b bot) handleProvincia(update *echotron.Update) stateFn {
 	b.SendMessage(
 		c19.GetProvinciaMsg(extractText(update)),
 		b.chatId,
-		echotron.PARSE_MARKDOWN,
+		echotron.ParseMarkdown,
 	)
 	return b.handleMessage
 }
@@ -78,7 +78,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		b.sendIntroduction()
 
 	case "/andamento":
-		b.SendMessage(c19.GetAndamentoMsg(), b.chatId, echotron.PARSE_MARKDOWN)
+		b.SendMessage(c19.GetAndamentoMsg(), b.chatId, echotron.ParseMarkdown)
 
 	case "/regione":
 		b.SendMessage("Inserisci il nome di una regione.", b.chatId)
@@ -122,8 +122,8 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 		b.chatId,
 		b.InlineKbdMarkup(
 			b.InlineKbdRow(
-				b.InlineKbdBtn("☕️ Offrici un caffè", "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HPUYKM3VJ2QMN&source=url", ""),
-				b.InlineKbdBtn("👾 GitHub Repository", "https://github.com/NicoNex/covidtron-19000", ""),
+				b.InlineKbdBtnURL("☕️ Offrici un caffè", "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HPUYKM3VJ2QMN&source=url"),
+				b.InlineKbdBtnURL("👾 GitHub Repository", "https://github.com/NicoNex/covidtron-19000"),
 			),
 		),
 	)
