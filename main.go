@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/NicoNex/covidtron-19000/c19"
@@ -35,18 +36,18 @@ const BOT_NAME = "covidtron-19000"
 type stateFn func(*echotron.Update) stateFn
 
 type bot struct {
-	chatId int64
+	chatID int64
 	state  stateFn
 	echotron.API
 }
 
 var cc *cache.Cache
 
-func newBot(chatId int64) echotron.Bot {
-	go cc.SaveSession(chatId)
+func newBot(chatID int64) echotron.Bot {
+	go cc.SaveSession(chatID)
 
 	b := &bot{
-		chatId: chatId,
+		chatID: chatID,
 		API:    echotron.NewAPI(readToken()),
 	}
 	b.state = b.handleMessage
@@ -56,7 +57,7 @@ func newBot(chatId int64) echotron.Bot {
 func (b bot) handleRegione(update *echotron.Update) stateFn {
 	b.SendMessage(
 		c19.GetRegioneMsg(extractText(update)),
-		b.chatId,
+		b.chatID,
 		echotron.ParseMarkdown,
 	)
 	return b.handleMessage
@@ -65,30 +66,40 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 func (b bot) handleProvincia(update *echotron.Update) stateFn {
 	b.SendMessage(
 		c19.GetProvinciaMsg(extractText(update)),
-		b.chatId,
+		b.chatID,
 		echotron.ParseMarkdown,
 	)
 	return b.handleMessage
 }
 
 func (b bot) handleMessage(update *echotron.Update) stateFn {
-	switch cmd := extractText(update); cmd {
-	case "/start":
+	switch cmd := extractText(update); {
+	case cmd == "/start":
 		b.sendIntroduction()
 
-	case "/andamento":
-		b.SendMessage(c19.GetAndamentoMsg(), b.chatId, echotron.ParseMarkdown)
+	case cmd == "/andamento":
+		b.SendMessage(c19.GetAndamentoMsg(), b.chatID, echotron.ParseMarkdown)
 
-	case "/regione":
-		b.SendMessage("Inserisci il nome di una regione.", b.chatId)
+	case cmd == "/regione":
+		b.SendMessage("Inserisci una regione.", b.chatID)
 		return b.handleRegione
 
-	case "/provincia":
-		b.SendMessage("Inserisci il nome di una provincia.", b.chatId)
+	case strings.HasPrefix(cmd, "/regione"):
+		spl := strings.Split(cmd, " ")
+		upd := newUpdate(strings.Join(spl[1:], " "))
+		b.handleRegione(upd)
+
+	case cmd == "/provincia":
+		b.SendMessage("Inserisci una provincia.", b.chatID)
 		return b.handleProvincia
 
-	case "/users":
-		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatId)
+	case strings.HasPrefix(cmd, "/provincia"):
+		spl := strings.Split(cmd, " ")
+		upd := newUpdate(strings.Join(spl[1:], " "))
+		b.handleProvincia(upd)
+
+	case cmd == "/users":
+		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatID)
 	}
 
 	return b.handleMessage
@@ -96,7 +107,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 
 func (b *bot) Update(update *echotron.Update) {
 	if extractText(update) == "/cancel" {
-		go b.SendMessage("Operazione annullata.", b.chatId)
+		go b.SendMessage("Operazione annullata.", b.chatID)
 		b.state = b.handleMessage
 		return
 	}
@@ -118,7 +129,7 @@ Bot creato da @NicoNex e @Dj\_Mike238.
 Basato su [echotron](https://github.com/NicoNex/echotron).
 
 Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com).`,
-		b.chatId,
+		b.chatID,
 		b.InlineKbdMarkup(
 			b.InlineKbdRow(
 				b.InlineKbdBtnURL("☕️ Offrici un caffè", "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HPUYKM3VJ2QMN&source=url"),
@@ -164,6 +175,14 @@ func extractText(update *echotron.Update) string {
 		return update.EditedMessage.Text
 	}
 	return ""
+}
+
+func newUpdate(text string) *echotron.Update {
+	return &echotron.Update{
+		Message: &echotron.Message{
+			Text: text,
+		},
+	}
 }
 
 func main() {
