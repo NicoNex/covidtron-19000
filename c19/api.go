@@ -166,29 +166,41 @@ func formatTimestamp(timestamp string) string {
 }
 
 func formatNote(nota string, ntype NoteType) string {
-	var msg = "\n\n*Note"
+	var msg strings.Builder
+	msg.WriteString("\n\n*Note")
 
 	switch ntype {
 	case Note:
-		msg += " generali"
+		msg.WriteString(" generali")
 	case NoteCasi:
-		msg += " relative ai test effettuati"
+		msg.WriteString(" relative ai test effettuati")
 	case NoteTest:
-		msg += " relative ai casi testati"
+		msg.WriteString(" relative ai casi testati")
 	}
 
-	msg += ":*"
+	msg.WriteString(":*")
 
 	note := strings.Split(nota, ". ")
 
 	for _, n := range note {
+		n = strings.TrimSuffix(n, "  ")
+
 		if !strings.HasSuffix(n, ".") {
 			n += "."
 		}
-		msg += fmt.Sprintf("\n- %s", n)
+
+		spl := strings.Split(n, "  -")
+		for _, s := range spl {
+			if strings.HasPrefix(s, " ") {
+				s = "-" + s
+			}
+
+			msg.WriteString(fmt.Sprintf("\n%s", s))
+		}
+
 	}
 
-	return msg
+	return msg.String()
 }
 
 func plus(value int) string {
