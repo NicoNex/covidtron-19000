@@ -21,7 +21,6 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -37,7 +36,7 @@ var cachepath string
 func LoadCache(bname string) *Cache {
 	var cache = &Cache{botName: bname}
 
-	data, err := ioutil.ReadFile(cachepath)
+	data, err := os.ReadFile(cachepath)
 	if err != nil {
 		log.Println(err)
 		goto exit
@@ -104,7 +103,7 @@ func (c Cache) writeCache() {
 		return
 	}
 
-	err = ioutil.WriteFile(cachepath, b, 0644)
+	err = os.WriteFile(cachepath, b, 0644)
 	if err != nil {
 		log.Println(err)
 	}

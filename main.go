@@ -20,7 +20,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -151,7 +150,7 @@ func updateData() {
 
 func readToken() string {
 	path := fmt.Sprintf("%s/.config/covidtron-19000/token", os.Getenv("HOME"))
-	tok, err := ioutil.ReadFile(path)
+	tok, err := os.ReadFile(path)
 	if err != nil {
 		log.Println("error: could not find token file")
 	}
