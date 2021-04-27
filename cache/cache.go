@@ -1,6 +1,6 @@
 /*
  * Covidtron-19000 - a bot for monitoring data about COVID-19.
- * Copyright (C) 2020 Nicolò Santamaria.
+ * Copyright (C) 2020-2021 Nicolò Santamaria, Michele Dimaggio.
  *
  * Covidtron-19000 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
