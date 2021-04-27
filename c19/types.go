@@ -24,47 +24,54 @@ type Andamento struct {
 	Deceduti                 int    `json:"deceduti"`
 	DimessiGuariti           int    `json:"dimessi_guariti"`
 	IsolamentoDomiciliare    int    `json:"isolamento_domiciliare"`
-	NoteIt                   string `json:"note_it"`
 	NuoviPositivi            int    `json:"nuovi_positivi"`
-	VariazioneTotalePositivi int    `json:"variazione_totale_positivi"`
 	RicoveratiConSintomi     int    `json:"ricoverati_con_sintomi"`
 	Tamponi                  int    `json:"tamponi"`
+	TamponiTestMol           int    `json:"tamponi_test_molecolare"`
+	TamponiTestAnt           int    `json:"tamponi_test_antigenico_rapido"`
 	TerapiaIntensiva         int    `json:"terapia_intensiva"`
 	TotaleCasi               int    `json:"totale_casi"`
 	TotaleOspedalizzati      int    `json:"totale_ospedalizzati"`
 	TotalePositivi           int    `json:"totale_positivi"`
+	TotalePositiviTestAnt    int    `json:"totale_positivi_test_antigenico_rapido"`
+	TotalePositiviTestMol    int    `json:"totale_positivi_test_molecolare"`
+	VariazioneTotalePositivi int    `json:"variazione_totale_positivi"`
 }
 
 type Regione struct {
 	CasiTestati              int    `json:"casi_testati"`
 	Data                     string `json:"data"`
+	Deceduti                 int    `json:"deceduti"`
 	DenominazioneRegione     string `json:"denominazione_regione"`
+	DimessiGuariti           int    `json:"dimessi_guariti"`
+	IsolamentoDomiciliare    int    `json:"isolamento_domiciliare"`
+	Note                     string `json:"note,omitempty"`
+	NoteCasi                 string `json:"note_casi,omitempty"`
+	NoteTest                 string `json:"note_test,omitempty"`
+	NuoviPositivi            int    `json:"nuovi_positivi"`
 	RicoveratiConSintomi     int    `json:"ricoverati_con_sintomi"`
 	TerapiaIntensiva         int    `json:"terapia_intensiva"`
-	TotaleOspedalizzati      int    `json:"totale_ospedalizzati"`
-	IsolamentoDomiciliare    int    `json:"isolamento_domiciliare"`
-	TotalePositivi           int    `json:"totale_positivi"`
-	VariazioneTotalePositivi int    `json:"variazione_totale_positivi"`
-	NuoviPositivi            int    `json:"nuovi_positivi"`
-	DimessiGuariti           int    `json:"dimessi_guariti"`
-	Deceduti                 int    `json:"deceduti"`
 	TotaleCasi               int    `json:"totale_casi"`
+	TotaleOspedalizzati      int    `json:"totale_ospedalizzati"`
+	TotalePositivi           int    `json:"totale_positivi"`
+	TotalePositiviTestAnt    int    `json:"totale_positivi_test_antigenico_rapido"`
+	TotalePositiviTestMol    int    `json:"totale_positivi_test_molecolare"`
 	Tamponi                  int    `json:"tamponi"`
-	NoteIt                   string `json:"note_it"`
+	TamponiTestMol           int    `json:"tamponi_test_molecolare"`
+	TamponiTestAnt           int    `json:"tamponi_test_antigenico_rapido"`
+	VariazioneTotalePositivi int    `json:"variazione_totale_positivi"`
 }
 
 type Provincia struct {
 	Data                   string `json:"data"`
 	DenominazioneRegione   string `json:"denominazione_regione"`
 	DenominazioneProvincia string `json:"denominazione_provincia"`
+	Note                   string `json:"note"`
 	SiglaProvincia         string `json:"sigla_provincia"`
 	TotaleCasi             int    `json:"totale_casi"`
-	NoteIt                 string `json:"note_it"`
 }
 
 type Nota struct {
-	Regione         string `json:"regione"`
-	Provincia       string `json:"provincia"`
-	TipologiaAvviso string `json:"tipologia_avviso"`
-	Note            string `json:"note"`
+	Data string `json:"data"`
+	Note string `json:"note"`
 }

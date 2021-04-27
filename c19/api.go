@@ -32,11 +32,19 @@ import (
 	"github.com/thedevsaddam/gojsonq/v2"
 )
 
+type NoteType uint8
+
+const (
+	Note NoteType = iota
+	NoteCasi
+	NoteTest
+)
+
 var jsonpath string
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
-	files := [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note-it"}
+	files := [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note"}
 
 	dir := fmt.Sprintf(jsonpath)
 	_, err := os.Stat(dir)
@@ -133,15 +141,14 @@ func getProvincia(provincia string) *Provincia {
 	return &data
 }
 
-func getNota(codice string) Nota {
+func getNote() Nota {
 	var data Nota
 
-	fpath := fmt.Sprintf("%s/note-it.json", jsonpath)
+	fpath := fmt.Sprintf("%s/note.json", jsonpath)
 
 	search := gojsonq.New().
 		File(fpath).
-		WhereEqual("codice", codice).
-		First()
+		Last()
 
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
@@ -158,19 +165,27 @@ func formatTimestamp(timestamp string) string {
 	return tp.Format("15:04 del 02/01/2006")
 }
 
-func formatNote(codici string) string {
-	var noteData []Nota
+func formatNote(nota string, ntype NoteType) string {
+	msg := "\n\n*Note"
 
-	notes := strings.Split(codici, ";")
-
-	for _, note := range notes {
-		noteData = append(noteData, getNota(note))
+	switch ntype {
+	case Note:
+		msg += " generali"
+	case NoteCasi:
+		msg += " relative ai test effettuati"
+	case NoteTest:
+		msg += " relative ai casi testati"
 	}
 
-	msg := "\n\n*Note:*"
+	msg += ":*"
 
-	for _, note := range noteData {
-		msg += fmt.Sprintf("\n%s - %s\n_%s_", note.Regione, note.TipologiaAvviso, note.Note)
+	note := strings.Split(nota, ". ")
+
+	for _, n := range note {
+		if !strings.HasSuffix(n, ".") {
+			n += "."
+		}
+		msg += fmt.Sprintf("\n- %s", n)
 	}
 
 	return msg
@@ -188,6 +203,7 @@ func plus(value int) string {
 
 func GetAndamentoMsg() string {
 	data := getAndamento()
+	note := getNote()
 
 	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_
@@ -197,12 +213,17 @@ Guariti: *%d*
 Deceduti: *%d*
 Totale positivi: *%d* (*%s* da ieri)
 
-Tamponi totali: *%d*
-Soggetti sottoposti al tampone: *%d*
 Ricoverati con sintomi: *%d*
 In terapia intensiva: *%d*
 In isolamento domiciliare: *%d*
-Totale ospedalizzati: *%d*`,
+Totale ospedalizzati: *%d*
+
+Tamponi totali: *%d*
+Soggetti sottoposti al tampone: *%d*
+Positivi al tampone molecolare: *%d*
+Tamponi molecolari totali: *%d*
+Positivi al tampone antigenico: *%d*
+Tamponi antigenici totali: *%d*`,
 		formatTimestamp(data.Data),
 		data.TotalePositivi,
 		plus(data.VariazioneTotalePositivi),
@@ -210,16 +231,20 @@ Totale ospedalizzati: *%d*`,
 		data.Deceduti,
 		data.TotaleCasi,
 		plus(data.NuoviPositivi),
-		data.Tamponi,
-		data.CasiTestati,
 		data.RicoveratiConSintomi,
 		data.TerapiaIntensiva,
 		data.IsolamentoDomiciliare,
 		data.TotaleOspedalizzati,
+		data.Tamponi,
+		data.CasiTestati,
+		data.TotalePositiviTestMol,
+		data.TamponiTestMol,
+		data.TotalePositiviTestAnt,
+		data.TamponiTestAnt,
 	)
 
-	if data.NoteIt != "" {
-		msg += formatNote(data.NoteIt)
+	if note.Data == data.Data {
+		msg += formatNote(note.Note, Note)
 	}
 
 	return msg
@@ -237,12 +262,17 @@ Guariti: *%d*
 Deceduti: *%d*
 Totale positivi: *%d* (*%s* da ieri)
 
-Tamponi totali: *%d*
-Soggetti sottoposti al tampone: *%d*
 Ricoverati con sintomi: *%d*
 In terapia intensiva: *%d*
 In isolamento domiciliare: *%d*
-Totale ospedalizzati: *%d*`,
+Totale ospedalizzati: *%d*
+
+Tamponi totali: *%d*
+Soggetti sottoposti al tampone: *%d*
+Positivi al tampone molecolare: *%d*
+Tamponi molecolari totali: *%d*
+Positivi al tampone antigenico: *%d*
+Tamponi antigenici totali: *%d*`,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
 			data.TotalePositivi,
@@ -251,16 +281,28 @@ Totale ospedalizzati: *%d*`,
 			data.Deceduti,
 			data.TotaleCasi,
 			plus(data.NuoviPositivi),
-			data.Tamponi,
-			data.CasiTestati,
 			data.RicoveratiConSintomi,
 			data.TerapiaIntensiva,
 			data.IsolamentoDomiciliare,
 			data.TotaleOspedalizzati,
+			data.Tamponi,
+			data.CasiTestati,
+			data.TotalePositiviTestMol,
+			data.TamponiTestMol,
+			data.TotalePositiviTestAnt,
+			data.TamponiTestAnt,
 		)
 
-		if data.NoteIt != "" {
-			msg += formatNote(data.NoteIt)
+		if data.Note != "" {
+			msg += formatNote(data.Note, Note)
+		}
+
+		if data.NoteCasi != "" {
+			msg += formatNote(data.NoteCasi, NoteCasi)
+		}
+
+		if data.NoteTest != "" {
+			msg += formatNote(data.NoteTest, NoteTest)
 		}
 
 		return msg
@@ -283,8 +325,8 @@ Totale positivi: *%d*`,
 			data.TotaleCasi,
 		)
 
-		if data.NoteIt != "" {
-			msg += formatNote(data.NoteIt)
+		if data.Note != "" {
+			msg += formatNote(data.Note, Note)
 		}
 
 		return msg
