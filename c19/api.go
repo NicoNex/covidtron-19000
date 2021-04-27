@@ -44,7 +44,7 @@ var jsonpath string
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
-	files := [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note"}
+	var files = [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note"}
 
 	dir := fmt.Sprintf(jsonpath)
 	_, err := os.Stat(dir)
@@ -166,7 +166,7 @@ func formatTimestamp(timestamp string) string {
 }
 
 func formatNote(nota string, ntype NoteType) string {
-	msg := "\n\n*Note"
+	var msg = "\n\n*Note"
 
 	switch ntype {
 	case Note:
@@ -192,7 +192,7 @@ func formatNote(nota string, ntype NoteType) string {
 }
 
 func plus(value int) string {
-	plus := ""
+	var plus string
 
 	if value > 0 {
 		plus = "+"
@@ -202,8 +202,8 @@ func plus(value int) string {
 }
 
 func GetAndamentoMsg() string {
-	data := getAndamento()
-	note := getNote()
+	var data = getAndamento()
+	var note = getNote()
 
 	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_
@@ -251,7 +251,7 @@ Tamponi antigenici totali: *%d*`,
 }
 
 func GetRegioneMsg(regione string) string {
-	data := getRegione(regione)
+	var data = getRegione(regione)
 
 	if data != nil {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
@@ -312,7 +312,7 @@ Tamponi antigenici totali: *%d*`,
 }
 
 func GetProvinciaMsg(provincia string) string {
-	data := getProvincia(provincia)
+	var data = getProvincia(provincia)
 
 	if data != nil {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Provincia di %s (%s)*
