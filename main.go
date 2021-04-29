@@ -136,6 +136,7 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 				b.InlineKbdBtnURL("👾 GitHub Repository", "https://github.com/NicoNex/covidtron-19000"),
 			),
 		),
+		echotron.ParseMarkdown,
 	)
 }
 
