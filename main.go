@@ -52,6 +52,10 @@ var (
 			{Text: "🏢 Cerca provincia"},
 		},
 	}
+
+	cancelBtn = echotron.KbdRow{
+		echotron.Button{Text: "❌ Annulla"},
+	}
 )
 
 func newBot(chatID int64) echotron.Bot {
@@ -66,40 +70,58 @@ func newBot(chatID int64) echotron.Bot {
 }
 
 func (b bot) handleRegione(update *echotron.Update) stateFn {
-	b.SendMessageWithKeyboard(
-		c19.GetRegioneMsg(extractText(update)),
-		b.chatID,
-		b.KeyboardMarkup(true, false, false, mainKbd...),
-		echotron.ParseMarkdown,
-	)
-	return b.handleMessage
+	switch text := extractText(update); text {
+	case "❌ Annulla":
+		b.sendCancel()
+		return b.handleMessage
+	default:
+		b.SendMessageWithKeyboard(
+			c19.GetRegioneMsg(extractText(update)),
+			b.chatID,
+			b.KeyboardMarkup(true, false, false, mainKbd...),
+			echotron.ParseMarkdown,
+		)
+		return b.handleMessage
+	}
 }
 
 func (b bot) handleProvincia(update *echotron.Update) stateFn {
-	b.SendMessageWithKeyboard(
-		c19.GetProvinciaMsg(extractText(update)),
-		b.chatID,
-		b.KeyboardMarkup(true, false, false, mainKbd...),
-		echotron.ParseMarkdown,
-	)
-	return b.handleMessage
+	switch text := extractText(update); text {
+	case "❌ Annulla":
+		b.sendCancel()
+		return b.handleMessage
+	default:
+		b.SendMessageWithKeyboard(
+			c19.GetProvinciaMsg(extractText(update)),
+			b.chatID,
+			b.KeyboardMarkup(true, false, false, mainKbd...),
+			echotron.ParseMarkdown,
+		)
+		return b.handleMessage
+	}
 }
 
 func (b bot) chooseProvincia(update *echotron.Update) stateFn {
-	b.SendMessageWithKeyboard(
-		"Scegli una provincia.",
-		b.chatID,
-		b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetProvince(update.Message.Text))...),
-	)
-	return b.handleProvincia
+	switch text := extractText(update); text {
+	case "❌ Annulla":
+		b.sendCancel()
+		return b.handleMessage
+	default:
+		b.SendMessageWithKeyboard(
+			"Scegli una provincia.",
+			b.chatID,
+			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetProvince(update.Message.Text))...),
+		)
+		return b.handleProvincia
+	}
 }
 
 func (b bot) handleMessage(update *echotron.Update) stateFn {
-	switch text := extractText(update); {
-	case text == "/start":
+	switch text := extractText(update); text {
+	case "/start":
 		b.sendIntroduction()
 
-	case text == "🇮🇹 Andamento nazionale":
+	case "🇮🇹 Andamento nazionale":
 		b.SendMessageWithKeyboard(
 			c19.GetAndamentoMsg(),
 			b.chatID,
@@ -107,7 +129,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 			echotron.ParseMarkdown,
 		)
 
-	case text == "🏙 Cerca regione":
+	case "🏙 Cerca regione":
 		b.SendMessageWithKeyboard(
 			"Scegli una regione.",
 			b.chatID,
@@ -115,7 +137,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		)
 		return b.handleRegione
 
-	case text == "🏢 Cerca provincia":
+	case "🏢 Cerca provincia":
 		b.SendMessageWithKeyboard(
 			"Scegli una regione.",
 			b.chatID,
@@ -123,7 +145,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		)
 		return b.chooseProvincia
 
-	case text == "/users":
+	case "/users":
 		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatID)
 	}
 
@@ -167,6 +189,14 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 	b.SendMessageWithKeyboard("Seleziona un'opzione.", b.chatID, b.KeyboardMarkup(true, false, false, mainKbd...))
 }
 
+func (b bot) sendCancel() {
+	b.SendMessageWithKeyboard(
+		"Operazione annullata.",
+		b.chatID,
+		b.KeyboardMarkup(true, false, false, mainKbd...),
+	)
+}
+
 func generateKeyboard(values []string) []echotron.KbdRow {
 	var kbd []echotron.KbdRow
 
@@ -178,7 +208,7 @@ func generateKeyboard(values []string) []echotron.KbdRow {
 		kbd[len(kbd)-1] = append(kbd[len(kbd)-1], echotron.Button{Text: v})
 	}
 
-	return kbd
+	return append(kbd, cancelBtn)
 }
 
 func ticker(tch <-chan time.Time) {
