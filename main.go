@@ -100,7 +100,12 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		b.sendIntroduction()
 
 	case text == "🇮🇹 Andamento nazionale":
-		b.SendMessage(c19.GetAndamentoMsg(), b.chatID, echotron.ParseMarkdown)
+		b.SendMessageWithKeyboard(
+			c19.GetAndamentoMsg(),
+			b.chatID,
+			b.KeyboardMarkup(true, false, false, mainKbd...),
+			echotron.ParseMarkdown,
+		)
 
 	case text == "🏙 Cerca regione":
 		b.SendMessageWithKeyboard(
