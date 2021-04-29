@@ -56,6 +56,8 @@ var (
 	cancelBtn = echotron.KbdRow{
 		echotron.Button{Text: "❌ Annulla"},
 	}
+
+	masters = []int64{41876271, 14870908}
 )
 
 func newBot(chatID int64) echotron.Bot {
@@ -116,12 +118,22 @@ func (b bot) chooseProvincia(update *echotron.Update) stateFn {
 	}
 }
 
+func (b bot) sendUpgradeNotice() {
+	for _, id := range cc.GetSessions() {
+		b.SendMessageWithKeyboard(
+			"Covidtron-19000 è stato aggiornato! Scopri subito le novità!",
+			id,
+			b.KeyboardMarkup(true, false, false, mainKbd...),
+		)
+	}
+}
+
 func (b bot) handleMessage(update *echotron.Update) stateFn {
-	switch text := extractText(update); text {
-	case "/start":
+	switch text := extractText(update); {
+	case text == "/start":
 		b.sendIntroduction()
 
-	case "🇮🇹 Andamento nazionale":
+	case text == "🇮🇹 Andamento nazionale":
 		b.SendMessageWithKeyboard(
 			c19.GetAndamentoMsg(),
 			b.chatID,
@@ -129,7 +141,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 			echotron.ParseMarkdown,
 		)
 
-	case "🏙 Dati regione":
+	case text == "🏙 Dati regione":
 		b.SendMessageWithKeyboard(
 			"Scegli una regione.",
 			b.chatID,
@@ -137,7 +149,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		)
 		return b.handleRegione
 
-	case "🏢 Dati provincia":
+	case text == "🏢 Dati provincia":
 		b.SendMessageWithKeyboard(
 			"Scegli una regione.",
 			b.chatID,
@@ -145,8 +157,11 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		)
 		return b.chooseProvincia
 
-	case "/users":
+	case text == "/users" && isMaster(b.chatID):
 		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatID)
+
+	case text == "/notice" && isMaster(b.chatID):
+		b.sendUpgradeNotice()
 	}
 
 	return b.handleMessage
@@ -163,14 +178,9 @@ func (b *bot) Update(update *echotron.Update) {
 }
 
 func (b bot) sendIntroduction() {
-	b.SendMessageWithKeyboard(`*Benvenuto in Covidtron-19000!*
+	b.SendMessageWithKeyboard(`*Benvenuto su Covidtron-19000!*
 
-*Comandi:*
-/start: visualizza questo messaggio
-/andamento: visualizza andamento nazionale
-/regione: visualizza andamento regione
-/provincia: visualizza andamento provincia
-/cancel: annulla l'operazione in corso
+Covidtron-19000 ti aiuta a monitorare in tempo reale i dati sulla diffusione del COVID-19 in Italia condivisi dalla Protezione Civile.
 
 Bot creato da @NicoNex e @Dj\_Mike238.
 Basato su [echotron](https://github.com/NicoNex/echotron).
@@ -184,6 +194,7 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 			),
 		),
 		echotron.ParseMarkdown,
+		echotron.DisableWebPagePreview,
 	)
 
 	b.SendMessageWithKeyboard("Seleziona un'opzione.", b.chatID, b.KeyboardMarkup(true, false, false, mainKbd...))
@@ -201,7 +212,7 @@ func generateKeyboard(values []string) []echotron.KbdRow {
 	var kbd []echotron.KbdRow
 
 	for i, v := range values {
-		if i % 2 == 0 {
+		if i%2 == 0 {
 			kbd = append(kbd, []echotron.Button{})
 		}
 
@@ -247,6 +258,15 @@ func extractText(update *echotron.Update) string {
 		return update.EditedMessage.Text
 	}
 	return ""
+}
+
+func isMaster(id int64) bool {
+	for _, i := range masters {
+		if i == id {
+			return true
+		}
+	}
+	return false
 }
 
 func main() {

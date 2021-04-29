@@ -26,7 +26,7 @@ func fmtType(v reflect.Value) string {
 		return strconv.FormatInt(int64(i), 10)
 
 	default:
-		return "fmtName error"
+		return "unsupported type"
 	}
 }
 
