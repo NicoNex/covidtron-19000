@@ -189,15 +189,19 @@ func formatNote(nota string, ntype NoteType) string {
 			n += "."
 		}
 
-		spl := strings.Split(n, "  -")
-		for _, s := range spl {
-			if strings.HasPrefix(s, " ") {
-				s = "-" + s
+		if strings.Contains(n, "  -") {
+			spl := strings.Split(n, "  -")
+
+			for _, s := range spl {
+				if strings.HasPrefix(s, " ") {
+					s = "-" + s
+				}
+
+				msg.WriteString(fmt.Sprintf("\n%s", s))
 			}
-
-			msg.WriteString(fmt.Sprintf("\n%s", s))
+		} else {
+			msg.WriteString(fmt.Sprintf("\n- %s", n))
 		}
-
 	}
 
 	return msg.String()
