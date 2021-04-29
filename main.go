@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/NicoNex/covidtron-19000/c19"
@@ -41,7 +40,19 @@ type bot struct {
 	echotron.API
 }
 
-var cc *cache.Cache
+var (
+	cc *cache.Cache
+
+	mainKbd = []echotron.KbdRow{
+		[]echotron.Button{
+			{Text: "🇮🇹 Andamento nazionale"},
+		},
+		[]echotron.Button{
+			{Text: "🏙 Cerca regione"},
+			{Text: "🏢 Cerca provincia"},
+		},
+	}
+)
 
 func newBot(chatID int64) echotron.Bot {
 	go cc.SaveSession(chatID)
@@ -55,50 +66,59 @@ func newBot(chatID int64) echotron.Bot {
 }
 
 func (b bot) handleRegione(update *echotron.Update) stateFn {
-	b.SendMessage(
+	b.SendMessageWithKeyboard(
 		c19.GetRegioneMsg(extractText(update)),
 		b.chatID,
+		b.KeyboardMarkup(true, false, false, mainKbd...),
 		echotron.ParseMarkdown,
 	)
 	return b.handleMessage
 }
 
 func (b bot) handleProvincia(update *echotron.Update) stateFn {
-	b.SendMessage(
+	b.SendMessageWithKeyboard(
 		c19.GetProvinciaMsg(extractText(update)),
 		b.chatID,
+		b.KeyboardMarkup(true, false, false, mainKbd...),
 		echotron.ParseMarkdown,
 	)
 	return b.handleMessage
 }
 
+func (b bot) chooseProvincia(update *echotron.Update) stateFn {
+	b.SendMessageWithKeyboard(
+		"Scegli una provincia.",
+		b.chatID,
+		b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetProvince(update.Message.Text))...),
+	)
+	return b.handleProvincia
+}
+
 func (b bot) handleMessage(update *echotron.Update) stateFn {
-	switch cmd := extractText(update); {
-	case cmd == "/start":
+	switch text := extractText(update); {
+	case text == "/start":
 		b.sendIntroduction()
 
-	case cmd == "/andamento":
+	case text == "🇮🇹 Andamento nazionale":
 		b.SendMessage(c19.GetAndamentoMsg(), b.chatID, echotron.ParseMarkdown)
 
-	case cmd == "/regione":
-		b.SendMessage("Inserisci una regione.", b.chatID)
+	case text == "🏙 Cerca regione":
+		b.SendMessageWithKeyboard(
+			"Scegli una regione.",
+			b.chatID,
+			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetRegioni())...),
+		)
 		return b.handleRegione
 
-	case strings.HasPrefix(cmd, "/regione"):
-		spl := strings.Split(cmd, " ")
-		upd := newUpdate(strings.Join(spl[1:], " "))
-		b.handleRegione(upd)
+	case text == "🏢 Cerca provincia":
+		b.SendMessageWithKeyboard(
+			"Scegli una regione.",
+			b.chatID,
+			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetRegioni())...),
+		)
+		return b.chooseProvincia
 
-	case cmd == "/provincia":
-		b.SendMessage("Inserisci una provincia.", b.chatID)
-		return b.handleProvincia
-
-	case strings.HasPrefix(cmd, "/provincia"):
-		spl := strings.Split(cmd, " ")
-		upd := newUpdate(strings.Join(spl[1:], " "))
-		b.handleProvincia(upd)
-
-	case cmd == "/users":
+	case text == "/users":
 		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatID)
 	}
 
@@ -138,6 +158,22 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 		),
 		echotron.ParseMarkdown,
 	)
+
+	b.SendMessageWithKeyboard("Seleziona un'opzione.", b.chatID, b.KeyboardMarkup(true, false, false, mainKbd...))
+}
+
+func generateKeyboard(values []string) []echotron.KbdRow {
+	var kbd []echotron.KbdRow
+
+	for i, v := range values {
+		if i % 2 == 0 {
+			kbd = append(kbd, []echotron.Button{})
+		}
+
+		kbd[len(kbd)-1] = append(kbd[len(kbd)-1], echotron.Button{Text: v})
+	}
+
+	return kbd
 }
 
 func ticker(tch <-chan time.Time) {
@@ -176,14 +212,6 @@ func extractText(update *echotron.Update) string {
 		return update.EditedMessage.Text
 	}
 	return ""
-}
-
-func newUpdate(text string) *echotron.Update {
-	return &echotron.Update{
-		Message: &echotron.Message{
-			Text: text,
-		},
-	}
 }
 
 func main() {

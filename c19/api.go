@@ -26,6 +26,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -113,24 +114,36 @@ func getRegione(regione string) *Regione {
 	return &data
 }
 
+func GetRegioni() []string {
+	var data []string
+
+	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
+	search := gojsonq.New().
+	File(fpath).
+	Pluck("denominazione_regione")
+
+	for _, v := range search.([]interface{}) {
+		data = append(data, v.(string))
+	}
+
+	sort.Strings(data)
+
+	return data
+}
+
 func getProvincia(provincia string) *Provincia {
 	var data Provincia
 
 	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
 
-	var search interface{}
-
-	if len(provincia) == 2 {
-		search = gojsonq.New().
-			File(fpath).
-			WhereContains("sigla_provincia", provincia).
-			First()
-	} else if search == nil {
-		search = gojsonq.New().
-			File(fpath).
-			WhereContains("denominazione_provincia", provincia).
-			First()
+	if strings.Contains(provincia, "(") {
+		provincia = provincia[:len(provincia)-5]
 	}
+
+	search := gojsonq.New().
+		File(fpath).
+		WhereContains("denominazione_provincia", provincia).
+		First()
 
 	if search == nil {
 		return nil
@@ -139,6 +152,32 @@ func getProvincia(provincia string) *Provincia {
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
 	return &data
+}
+
+func GetProvince(regione string) []string {
+	var data []string
+
+	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
+
+	searchProv := gojsonq.New().
+	File(fpath).
+	WhereContains("denominazione_regione", regione).
+	Pluck("denominazione_provincia")
+
+	searchSigle := gojsonq.New().
+	File(fpath).
+	WhereContains("denominazione_regione", regione).
+	Pluck("sigla_provincia")
+
+	for i, v := range searchProv.([]interface{}) {
+		if v != "Fuori Regione / Provincia Autonoma" && v != "In fase di definizione/aggiornamento" {
+			data = append(data, fmt.Sprintf("%s (%s)", v, searchSigle.([]interface{})[i].(string)))
+		}
+	}
+
+	sort.Strings(data)
+
+	return data
 }
 
 func getNote() Nota {
