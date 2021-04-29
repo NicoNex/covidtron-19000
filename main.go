@@ -48,8 +48,8 @@ var (
 			{Text: "🇮🇹 Andamento nazionale"},
 		},
 		[]echotron.Button{
-			{Text: "🏙 Cerca regione"},
-			{Text: "🏢 Cerca provincia"},
+			{Text: "🏙 Dati regione"},
+			{Text: "🏢 Dati provincia"},
 		},
 	}
 
@@ -110,7 +110,7 @@ func (b bot) chooseProvincia(update *echotron.Update) stateFn {
 		b.SendMessageWithKeyboard(
 			"Scegli una provincia.",
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetProvince(update.Message.Text))...),
+			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetProvince(text))...),
 		)
 		return b.handleProvincia
 	}
@@ -129,7 +129,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 			echotron.ParseMarkdown,
 		)
 
-	case "🏙 Cerca regione":
+	case "🏙 Dati regione":
 		b.SendMessageWithKeyboard(
 			"Scegli una regione.",
 			b.chatID,
@@ -137,7 +137,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		)
 		return b.handleRegione
 
-	case "🏢 Cerca provincia":
+	case "🏢 Dati provincia":
 		b.SendMessageWithKeyboard(
 			"Scegli una regione.",
 			b.chatID,
