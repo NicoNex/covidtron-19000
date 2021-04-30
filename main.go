@@ -57,6 +57,11 @@ var (
 		echotron.Button{Text: "❌ Annulla"},
 	}
 
+	masterKbd = echotron.KbdRow{
+		echotron.Button{Text: "📊 Utenti"},
+		echotron.Button{Text: "📥 Aggiorna dati"},
+	}
+
 	masters = []int64{41876271, 14870908}
 )
 
@@ -80,7 +85,7 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 		b.SendMessageWithKeyboard(
 			c19.GetRegioneMsg(extractText(update)),
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, mainKbd...),
+			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 			echotron.ParseMarkdown,
 		)
 		return b.handleMessage
@@ -96,7 +101,7 @@ func (b bot) handleProvincia(update *echotron.Update) stateFn {
 		b.SendMessageWithKeyboard(
 			c19.GetProvinciaMsg(extractText(update)),
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, mainKbd...),
+			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 			echotron.ParseMarkdown,
 		)
 		return b.handleMessage
@@ -123,7 +128,7 @@ func (b bot) sendUpgradeNotice() {
 		b.SendMessageWithKeyboard(
 			"Covidtron-19000 è stato aggiornato! Scopri subito le novità!",
 			id,
-			b.KeyboardMarkup(true, false, false, mainKbd...),
+			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 		)
 	}
 }
@@ -137,7 +142,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		b.SendMessageWithKeyboard(
 			c19.GetAndamentoMsg(),
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, mainKbd...),
+			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 			echotron.ParseMarkdown,
 		)
 
@@ -157,20 +162,20 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		)
 		return b.chooseProvincia
 
-	case text == "/users" && isMaster(b.chatID):
+	case text == "📊 Utenti" && isMaster(b.chatID):
 		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatID)
 
-	case text == "/notice" && isMaster(b.chatID):
-		b.sendUpgradeNotice()
-
-	case text == "/update" && isMaster(b.chatID):
+	case text == "📥 Aggiorna dati" && isMaster(b.chatID):
 		b.SendMessage("Aggiornamento in corso...", b.chatID)
 		c19.Update()
 		b.SendMessageWithKeyboard(
 			"Aggiornamento completato.",
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, mainKbd...),
+			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 		)
+
+	case text == "/notice" && isMaster(b.chatID):
+		b.sendUpgradeNotice()
 	}
 
 	return b.handleMessage
@@ -206,14 +211,14 @@ Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flat
 		echotron.DisableWebPagePreview,
 	)
 
-	b.SendMessageWithKeyboard("Seleziona un'opzione.", b.chatID, b.KeyboardMarkup(true, false, false, mainKbd...))
+	b.SendMessageWithKeyboard("Seleziona un'opzione.", b.chatID, b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...))
 }
 
 func (b bot) sendCancel() {
 	b.SendMessageWithKeyboard(
 		"Operazione annullata.",
 		b.chatID,
-		b.KeyboardMarkup(true, false, false, mainKbd...),
+		b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 	)
 }
 
@@ -269,13 +274,20 @@ func extractText(update *echotron.Update) string {
 	return ""
 }
 
-func isMaster(id int64) bool {
+func isMaster(chatID int64) bool {
 	for _, i := range masters {
-		if i == id {
+		if i == chatID {
 			return true
 		}
 	}
 	return false
+}
+
+func getMainKbd(chatID int64) []echotron.KbdRow {
+	if isMaster(chatID) {
+		return append(mainKbd, masterKbd)
+	}
+	return mainKbd
 }
 
 func main() {
