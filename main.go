@@ -162,6 +162,15 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 
 	case text == "/notice" && isMaster(b.chatID):
 		b.sendUpgradeNotice()
+
+	case text == "/update" && isMaster(b.chatID):
+		b.SendMessage("Aggiornamento in corso...", b.chatID)
+		c19.Update()
+		b.SendMessageWithKeyboard(
+			"Aggiornamento completato.",
+			b.chatID,
+			b.KeyboardMarkup(true, false, false, mainKbd...),
+		)
 	}
 
 	return b.handleMessage
