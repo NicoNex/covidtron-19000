@@ -80,7 +80,7 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 	switch text := extractText(update); text {
 	case "❌ Annulla":
 		b.sendCancel()
-		return b.handleMessage
+
 	default:
 		b.SendMessageWithKeyboard(
 			c19.GetRegioneMsg(extractText(update)),
@@ -88,15 +88,16 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 			echotron.ParseMarkdown,
 		)
-		return b.handleMessage
 	}
+
+	return b.handleMessage
 }
 
 func (b bot) handleProvincia(update *echotron.Update) stateFn {
 	switch text := extractText(update); text {
 	case "❌ Annulla":
 		b.sendCancel()
-		return b.handleMessage
+
 	default:
 		b.SendMessageWithKeyboard(
 			c19.GetProvinciaMsg(extractText(update)),
@@ -104,8 +105,9 @@ func (b bot) handleProvincia(update *echotron.Update) stateFn {
 			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 			echotron.ParseMarkdown,
 		)
-		return b.handleMessage
 	}
+
+	return b.handleMessage
 }
 
 func (b bot) chooseProvincia(update *echotron.Update) stateFn {
@@ -113,6 +115,7 @@ func (b bot) chooseProvincia(update *echotron.Update) stateFn {
 	case "❌ Annulla":
 		b.sendCancel()
 		return b.handleMessage
+
 	default:
 		b.SendMessageWithKeyboard(
 			"Scegli una provincia.",
