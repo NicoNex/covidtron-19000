@@ -1,4 +1,6 @@
 github.com/NicoNex/echotron/v2 v2.4.0 h1:iXk67bpP+PNJKNK8ps8ZspTIJXQ9skAhWWNaVNyKW1U=
 github.com/NicoNex/echotron/v2 v2.4.0/go.mod h1:kc+G8z8bBc2MJAxgkPIZcF9Lf0dbCVIX6copQ302nWU=
+github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
+github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/thedevsaddam/gojsonq/v2 v2.5.2 h1:CoMVaYyKFsVj6TjU6APqAhAvC07hTI6IQen8PHzHYY0=
 github.com/thedevsaddam/gojsonq/v2 v2.5.2/go.mod h1:bv6Xa7kWy82uT0LnXPE2SzGqTj33TAEeR560MdJkiXs=

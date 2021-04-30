@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/thedevsaddam/gojsonq/v2"
+	"github.com/dustin/go-humanize"
 )
 
 type NoteType uint8
@@ -247,13 +248,14 @@ func formatNote(nota string, ntype NoteType) string {
 }
 
 func plus(value int) string {
-	var plus string
-
 	if value > 0 {
-		plus = "+"
+		return "+" + ifmt(value)
 	}
+	return ifmt(value)
+}
 
-	return fmt.Sprintf("%s%d", plus, value)
+func ifmt(i int) string {
+	return humanize.FormatInteger("#.###,", i)
 }
 
 func GetAndamentoMsg() string {
@@ -263,39 +265,39 @@ func GetAndamentoMsg() string {
 	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_
 
-Attualmente positivi: *%d* (*%s* da ieri)
-Guariti: *%d*
-Deceduti: *%d*
-Totale positivi: *%d* (*%s* da ieri)
+Attualmente positivi: *%s* (*%s* da ieri)
+Guariti: *%s*
+Deceduti: *%s*
+Totale positivi: *%s* (*%s* da ieri)
 
-Ricoverati con sintomi: *%d*
-In terapia intensiva: *%d*
-In isolamento domiciliare: *%d*
-Totale ospedalizzati: *%d*
+Ricoverati con sintomi: *%s*
+In terapia intensiva: *%s*
+In isolamento domiciliare: *%s*
+Totale ospedalizzati: *%s*
 
-Tamponi totali: *%d*
-Soggetti sottoposti al tampone: *%d*
-Positivi al tampone molecolare: *%d*
-Tamponi molecolari totali: *%d*
-Positivi al tampone antigenico: *%d*
-Tamponi antigenici totali: *%d*`,
+Tamponi totali: *%s*
+Soggetti sottoposti al tampone: *%s*
+Positivi al tampone molecolare: *%s*
+Tamponi molecolari totali: *%s*
+Positivi al tampone antigenico: *%s*
+Tamponi antigenici totali: *%s*`,
 		formatTimestamp(data.Data),
-		data.TotalePositivi,
+		ifmt(data.TotalePositivi),
 		plus(data.VariazioneTotalePositivi),
-		data.DimessiGuariti,
-		data.Deceduti,
-		data.TotaleCasi,
+		ifmt(data.DimessiGuariti),
+		ifmt(data.Deceduti),
+		ifmt(data.TotaleCasi),
 		plus(data.NuoviPositivi),
-		data.RicoveratiConSintomi,
-		data.TerapiaIntensiva,
-		data.IsolamentoDomiciliare,
-		data.TotaleOspedalizzati,
-		data.Tamponi,
-		data.CasiTestati,
-		data.TotalePositiviTestMol,
-		data.TamponiTestMol,
-		data.TotalePositiviTestAnt,
-		data.TamponiTestAnt,
+		ifmt(data.RicoveratiConSintomi),
+		ifmt(data.TerapiaIntensiva),
+		ifmt(data.IsolamentoDomiciliare),
+		ifmt(data.TotaleOspedalizzati),
+		ifmt(data.Tamponi),
+		ifmt(data.CasiTestati),
+		ifmt(data.TotalePositiviTestMol),
+		ifmt(data.TamponiTestMol),
+		ifmt(data.TotalePositiviTestAnt),
+		ifmt(data.TamponiTestAnt),
 	)
 
 	if note.Data == data.Data {
@@ -312,40 +314,40 @@ func GetRegioneMsg(regione string) string {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_
 
-Attualmente positivi: *%d* (*%s* da ieri)
-Guariti: *%d*
-Deceduti: *%d*
-Totale positivi: *%d* (*%s* da ieri)
+Attualmente positivi: *%s* (*%s* da ieri)
+Guariti: *%s*
+Deceduti: *%s*
+Totale positivi: *%s* (*%s* da ieri)
 
-Ricoverati con sintomi: *%d*
-In terapia intensiva: *%d*
-In isolamento domiciliare: *%d*
-Totale ospedalizzati: *%d*
+Ricoverati con sintomi: *%s*
+In terapia intensiva: *%s*
+In isolamento domiciliare: *%s*
+Totale ospedalizzati: *%s*
 
-Tamponi totali: *%d*
-Soggetti sottoposti al tampone: *%d*
-Positivi al tampone molecolare: *%d*
-Tamponi molecolari totali: *%d*
-Positivi al tampone antigenico: *%d*
-Tamponi antigenici totali: *%d*`,
+Tamponi totali: *%s*
+Soggetti sottoposti al tampone: *%s*
+Positivi al tampone molecolare: *%s*
+Tamponi molecolari totali: *%s*
+Positivi al tampone antigenico: *%s*
+Tamponi antigenici totali: *%s*`,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
-			data.TotalePositivi,
+			ifmt(data.TotalePositivi),
 			plus(data.VariazioneTotalePositivi),
-			data.DimessiGuariti,
-			data.Deceduti,
-			data.TotaleCasi,
+			ifmt(data.DimessiGuariti),
+			ifmt(data.Deceduti),
+			ifmt(data.TotaleCasi),
 			plus(data.NuoviPositivi),
-			data.RicoveratiConSintomi,
-			data.TerapiaIntensiva,
-			data.IsolamentoDomiciliare,
-			data.TotaleOspedalizzati,
-			data.Tamponi,
-			data.CasiTestati,
-			data.TotalePositiviTestMol,
-			data.TamponiTestMol,
-			data.TotalePositiviTestAnt,
-			data.TamponiTestAnt,
+			ifmt(data.RicoveratiConSintomi),
+			ifmt(data.TerapiaIntensiva),
+			ifmt(data.IsolamentoDomiciliare),
+			ifmt(data.TotaleOspedalizzati),
+			ifmt(data.Tamponi),
+			ifmt(data.CasiTestati),
+			ifmt(data.TotalePositiviTestMol),
+			ifmt(data.TamponiTestMol),
+			ifmt(data.TotalePositiviTestAnt),
+			ifmt(data.TamponiTestAnt),
 		)
 
 		if data.Note != "" {
@@ -373,11 +375,11 @@ func GetProvinciaMsg(provincia string) string {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Provincia di %s (%s)*
 _Dati aggiornati alle %s_
 
-Totale positivi: *%d*`,
+Totale positivi: *%s*`,
 			data.DenominazioneProvincia,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
-			data.TotaleCasi,
+			ifmt(data.TotaleCasi),
 		)
 
 		if data.Note != "" {
