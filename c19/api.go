@@ -207,6 +207,7 @@ func formatTimestamp(timestamp string) string {
 
 func formatNote(nota string, ntype NoteType) string {
 	var msg strings.Builder
+
 	msg.WriteString("\n\n*Note")
 
 	switch ntype {
@@ -222,7 +223,7 @@ func formatNote(nota string, ntype NoteType) string {
 
 	note := strings.Split(nota, ". ")
 
-	for _, n := range note {
+	for i, n := range note {
 		n = strings.TrimSuffix(n, "  ")
 
 		if !strings.HasSuffix(n, ".") {
@@ -239,8 +240,10 @@ func formatNote(nota string, ntype NoteType) string {
 
 				msg.WriteString(fmt.Sprintf("\n%s", s))
 			}
-		} else {
+		} else if i > 0 && len(note[i-1]) != 6 {
 			msg.WriteString(fmt.Sprintf("\n- %s", n))
+		} else {
+			msg.WriteString(fmt.Sprintf(" %s", n))
 		}
 	}
 
