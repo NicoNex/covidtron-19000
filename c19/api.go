@@ -240,10 +240,12 @@ func formatNote(nota string, ntype NoteType) string {
 
 				msg.WriteString(fmt.Sprintf("\n%s", s))
 			}
-		} else if i == 0 || (i > 0 && len(note[i-1]) != 6) {
-			msg.WriteString(fmt.Sprintf("\n- %s", n))
-		} else {
-			msg.WriteString(fmt.Sprintf(" %s", n))
+		} else if strings.TrimSpace(n) != "." {
+			if i == 0 || (i > 0 && len(note[i-1]) != 6) {
+				msg.WriteString(fmt.Sprintf("\n- %s", n))
+			} else {
+				msg.WriteString(fmt.Sprintf(" %s", n))
+			}
 		}
 	}
 
