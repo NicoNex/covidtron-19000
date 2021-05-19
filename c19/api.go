@@ -28,10 +28,8 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/thedevsaddam/gojsonq/v2"
-	"github.com/dustin/go-humanize"
 )
 
 type NoteType uint8
@@ -120,8 +118,8 @@ func GetRegioni() []string {
 
 	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
 	search := gojsonq.New().
-	File(fpath).
-	Pluck("denominazione_regione")
+		File(fpath).
+		Pluck("denominazione_regione")
 
 	for _, v := range search.([]interface{}) {
 		data = append(data, v.(string))
@@ -161,14 +159,14 @@ func GetProvince(regione string) []string {
 	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
 
 	searchProv := gojsonq.New().
-	File(fpath).
-	WhereContains("denominazione_regione", regione).
-	Pluck("denominazione_provincia")
+		File(fpath).
+		WhereContains("denominazione_regione", regione).
+		Pluck("denominazione_provincia")
 
 	searchSigle := gojsonq.New().
-	File(fpath).
-	WhereContains("denominazione_regione", regione).
-	Pluck("sigla_provincia")
+		File(fpath).
+		WhereContains("denominazione_regione", regione).
+		Pluck("sigla_provincia")
 
 	for i, v := range searchProv.([]interface{}) {
 		if v != "Fuori Regione / Provincia Autonoma" && v != "In fase di definizione/aggiornamento" {
@@ -193,208 +191,6 @@ func getNote() Nota {
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
 	return data
-}
-
-func formatTimestamp(timestamp string) string {
-	tp, err := time.Parse(time.RFC3339, timestamp+"Z")
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	return tp.Format("15:04 del 02/01/2006")
-}
-
-func formatNote(nota string, ntype NoteType) string {
-	var msg strings.Builder
-
-	msg.WriteString("\n\n*Note")
-
-	switch ntype {
-	case Note:
-		msg.WriteString(" generali")
-	case NoteCasi:
-		msg.WriteString(" relative ai test effettuati")
-	case NoteTest:
-		msg.WriteString(" relative ai casi testati")
-	}
-
-	msg.WriteString(":*")
-
-	note := strings.Split(nota, ". ")
-
-	for i, n := range note {
-		n = strings.TrimSuffix(n, "  ")
-
-		if !strings.HasSuffix(n, ".") {
-			n += "."
-		}
-
-		if strings.Contains(n, "  -") {
-			spl := strings.Split(n, "  -")
-
-			for _, s := range spl {
-				if strings.HasPrefix(s, " ") {
-					s = "-" + s
-				}
-
-				msg.WriteString(fmt.Sprintf("\n%s", s))
-			}
-		} else if strings.TrimSpace(n) != "." {
-			if i == 0 || (i > 0 && len(note[i-1]) != 6) {
-				msg.WriteString(fmt.Sprintf("\n- %s", n))
-			} else {
-				msg.WriteString(fmt.Sprintf(" %s", n))
-			}
-		}
-	}
-
-	return msg.String()
-}
-
-func plus(value int) string {
-	if value > 0 {
-		return "+" + ifmt(value)
-	}
-	return ifmt(value)
-}
-
-func ifmt(i int) string {
-	return humanize.FormatInteger("#.###,", i)
-}
-
-func GetAndamentoMsg() string {
-	var data = getAndamento()
-	var note = getNote()
-
-	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
-_Dati aggiornati alle %s_
-
-Attualmente positivi: *%s* (*%s* da ieri)
-Guariti: *%s*
-Deceduti: *%s*
-Totale positivi: *%s* (*%s* da ieri)
-
-Ricoverati con sintomi: *%s*
-In terapia intensiva: *%s*
-In isolamento domiciliare: *%s*
-Totale ospedalizzati: *%s*
-
-Tamponi totali: *%s*
-Soggetti sottoposti al tampone: *%s*
-Positivi al tampone molecolare: *%s*
-Tamponi molecolari totali: *%s*
-Positivi al tampone antigenico: *%s*
-Tamponi antigenici totali: *%s*`,
-		formatTimestamp(data.Data),
-		ifmt(data.TotalePositivi),
-		plus(data.VariazioneTotalePositivi),
-		ifmt(data.DimessiGuariti),
-		ifmt(data.Deceduti),
-		ifmt(data.TotaleCasi),
-		plus(data.NuoviPositivi),
-		ifmt(data.RicoveratiConSintomi),
-		ifmt(data.TerapiaIntensiva),
-		ifmt(data.IsolamentoDomiciliare),
-		ifmt(data.TotaleOspedalizzati),
-		ifmt(data.Tamponi),
-		ifmt(data.CasiTestati),
-		ifmt(data.TotalePositiviTestMol),
-		ifmt(data.TamponiTestMol),
-		ifmt(data.TotalePositiviTestAnt),
-		ifmt(data.TamponiTestAnt),
-	)
-
-	if note.Data == data.Data {
-		msg += formatNote(note.Note, Note)
-	}
-
-	return msg
-}
-
-func GetRegioneMsg(regione string) string {
-	var data = getRegione(regione)
-
-	if data != nil {
-		msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
-_Dati aggiornati alle %s_
-
-Attualmente positivi: *%s* (*%s* da ieri)
-Guariti: *%s*
-Deceduti: *%s*
-Totale positivi: *%s* (*%s* da ieri)
-
-Ricoverati con sintomi: *%s*
-In terapia intensiva: *%s*
-In isolamento domiciliare: *%s*
-Totale ospedalizzati: *%s*
-
-Tamponi totali: *%s*
-Soggetti sottoposti al tampone: *%s*
-Positivi al tampone molecolare: *%s*
-Tamponi molecolari totali: *%s*
-Positivi al tampone antigenico: *%s*
-Tamponi antigenici totali: *%s*`,
-			data.DenominazioneRegione,
-			formatTimestamp(data.Data),
-			ifmt(data.TotalePositivi),
-			plus(data.VariazioneTotalePositivi),
-			ifmt(data.DimessiGuariti),
-			ifmt(data.Deceduti),
-			ifmt(data.TotaleCasi),
-			plus(data.NuoviPositivi),
-			ifmt(data.RicoveratiConSintomi),
-			ifmt(data.TerapiaIntensiva),
-			ifmt(data.IsolamentoDomiciliare),
-			ifmt(data.TotaleOspedalizzati),
-			ifmt(data.Tamponi),
-			ifmt(data.CasiTestati),
-			ifmt(data.TotalePositiviTestMol),
-			ifmt(data.TamponiTestMol),
-			ifmt(data.TotalePositiviTestAnt),
-			ifmt(data.TamponiTestAnt),
-		)
-
-		if data.Note != "" {
-			msg += formatNote(data.Note, Note)
-		}
-
-		if data.NoteCasi != "" {
-			msg += formatNote(data.NoteCasi, NoteCasi)
-		}
-
-		if data.NoteTest != "" {
-			msg += formatNote(data.NoteTest, NoteTest)
-		}
-
-		return msg
-	} else {
-		return "Errore: Regione non trovata."
-	}
-}
-
-func GetProvinciaMsg(provincia string) string {
-	var data = getProvincia(provincia)
-
-	if data != nil {
-		msg := fmt.Sprintf(`*Andamento COVID-19 - Provincia di %s (%s)*
-_Dati aggiornati alle %s_
-
-Totale positivi: *%s*`,
-			data.DenominazioneProvincia,
-			data.DenominazioneRegione,
-			formatTimestamp(data.Data),
-			ifmt(data.TotaleCasi),
-		)
-
-		if data.Note != "" {
-			msg += formatNote(data.Note, Note)
-		}
-
-		return msg
-	} else {
-		return "Errore: Provincia non trovata."
-	}
 }
 
 func init() {

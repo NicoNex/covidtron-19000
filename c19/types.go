@@ -75,3 +75,9 @@ type Nota struct {
 	Data string `json:"data"`
 	Note string `json:"note"`
 }
+
+type InfoMsg struct {
+	Generale string
+	Tamponi  string
+	Note     string
+}

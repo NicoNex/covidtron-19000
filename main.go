@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/NicoNex/covidtron-19000/c19"
@@ -35,13 +36,16 @@ const BOT_NAME = "covidtron-19000"
 type stateFn func(*echotron.Update) stateFn
 
 type bot struct {
-	chatID int64
-	state  stateFn
+	chatID    int64
+	lastMsgID int
+	state     stateFn
 	echotron.API
 }
 
 var (
-	cc *cache.Cache
+	andamento c19.InfoMsg
+	cc        *cache.Cache
+	regione   c19.InfoMsg
 
 	mainKbd = []echotron.KbdRow{
 		[]echotron.Button{
@@ -50,6 +54,26 @@ var (
 		[]echotron.Button{
 			{Text: "🏙 Dati regione"},
 			{Text: "🏢 Dati provincia"},
+		},
+	}
+
+	andamentoKbd = []echotron.InlineKbdRow{
+		[]echotron.InlineButton{
+			{Text: "📊 Generale", CallbackData: "andamento_generale"},
+			{Text: "🧪 Tamponi", CallbackData: "andamento_tamponi"},
+		},
+		[]echotron.InlineButton{
+			{Text: "📋 Note", CallbackData: "andamento_note"},
+		},
+	}
+
+	regioneKbd = []echotron.InlineKbdRow{
+		[]echotron.InlineButton{
+			{Text: "📊 Generale", CallbackData: "regione_generale"},
+			{Text: "🧪 Tamponi", CallbackData: "regione_tamponi"},
+		},
+		[]echotron.InlineButton{
+			{Text: "📋 Note", CallbackData: "regione_note"},
 		},
 	}
 
@@ -82,12 +106,34 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 		b.sendCancel()
 
 	default:
-		b.SendMessageWithKeyboard(
-			c19.GetRegioneMsg(extractText(update)),
-			b.chatID,
-			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
-			echotron.ParseMarkdown,
-		)
+		regione = c19.GetRegioneMsg(extractText(update))
+
+		if !strings.Contains(regione.Generale, "Errore") {
+			b.SendMessageWithKeyboard(
+				"Caricamento...",
+				b.chatID,
+				b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+			)
+
+			resp, err := b.SendMessageWithKeyboard(
+				regione.Generale,
+				b.chatID,
+				b.InlineKbdMarkup(regioneKbd...),
+				echotron.ParseMarkdown,
+			)
+
+			if err != nil {
+				log.Println(err)
+			} else {
+				b.lastMsgID = resp.Result.ID
+			}
+		} else {
+			b.SendMessageWithKeyboard(
+				regione.Generale,
+				b.chatID,
+				b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+			)
+		}
 	}
 
 	return b.handleMessage
@@ -142,12 +188,20 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		b.sendIntroduction()
 
 	case text == "🇮🇹 Andamento nazionale":
-		b.SendMessageWithKeyboard(
-			c19.GetAndamentoMsg(),
+		andamento = c19.GetAndamentoMsg()
+
+		resp, err := b.SendMessageWithKeyboard(
+			andamento.Generale,
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+			b.InlineKbdMarkup(andamentoKbd...),
 			echotron.ParseMarkdown,
 		)
+
+		if err != nil {
+			log.Println(err)
+		} else {
+			b.lastMsgID = resp.Result.ID
+		}
 
 	case text == "🏙 Dati regione":
 		b.SendMessageWithKeyboard(
@@ -181,7 +235,79 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		b.sendUpgradeNotice()
 	}
 
+	if update.CallbackQuery != nil {
+		b.handleCallback(update)
+	}
+
 	return b.handleMessage
+}
+
+func (b bot) handleCallback(update *echotron.Update) {
+	var resp echotron.APIResponseMessage
+	var err error
+
+	switch update.CallbackQuery.Data {
+	case "andamento_generale":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			andamento.Generale,
+			b.InlineKbdMarkup(andamentoKbd...),
+			echotron.ParseMarkdown,
+		)
+
+	case "andamento_tamponi":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			andamento.Tamponi,
+			b.InlineKbdMarkup(andamentoKbd...),
+			echotron.ParseMarkdown,
+		)
+
+	case "andamento_note":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			andamento.Note,
+			b.InlineKbdMarkup(andamentoKbd...),
+			echotron.ParseMarkdown,
+		)
+	case "regione_generale":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			regione.Generale,
+			b.InlineKbdMarkup(regioneKbd...),
+			echotron.ParseMarkdown,
+		)
+
+	case "regione_tamponi":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			regione.Tamponi,
+			b.InlineKbdMarkup(regioneKbd...),
+			echotron.ParseMarkdown,
+		)
+
+	case "regione_note":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			regione.Note,
+			b.InlineKbdMarkup(regioneKbd...),
+			echotron.ParseMarkdown,
+		)
+	}
+
+	if err != nil {
+		log.Println(err)
+	} else if resp.Result != nil {
+		b.lastMsgID = resp.Result.ID
+	}
+
+	b.AnswerCallbackQuery(update.CallbackQuery.ID, "", false)
 }
 
 func (b *bot) Update(update *echotron.Update) {
