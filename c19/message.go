@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize"
+	"github.com/NicoNex/covidtron-19000/apiutil"
 )
 
 var (
@@ -75,16 +75,16 @@ In terapia intensiva: *%s*
 In isolamento domiciliare: *%s*
 Totale ospedalizzati: *%s*`,
 		formatTimestamp(andamento.Data),
-		ifmt(andamento.TotalePositivi),
+		apiutil.Ifmt(andamento.TotalePositivi),
 		plus(andamento.VariazioneTotalePositivi),
-		ifmt(andamento.DimessiGuariti),
-		ifmt(andamento.Deceduti),
-		ifmt(andamento.TotaleCasi),
+		apiutil.Ifmt(andamento.DimessiGuariti),
+		apiutil.Ifmt(andamento.Deceduti),
+		apiutil.Ifmt(andamento.TotaleCasi),
 		plus(andamento.NuoviPositivi),
-		ifmt(andamento.RicoveratiConSintomi),
-		ifmt(andamento.TerapiaIntensiva),
-		ifmt(andamento.IsolamentoDomiciliare),
-		ifmt(andamento.TotaleOspedalizzati),
+		apiutil.Ifmt(andamento.RicoveratiConSintomi),
+		apiutil.Ifmt(andamento.TerapiaIntensiva),
+		apiutil.Ifmt(andamento.IsolamentoDomiciliare),
+		apiutil.Ifmt(andamento.TotaleOspedalizzati),
 	)
 }
 
@@ -99,12 +99,12 @@ Tamponi molecolari totali: *%s*
 Positivi al tampone antigenico: *%s*
 Tamponi antigenici totali: *%s*`,
 		formatTimestamp(andamento.Data),
-		ifmt(andamento.Tamponi),
-		ifmt(andamento.CasiTestati),
-		ifmt(andamento.TotalePositiviTestMol),
-		ifmt(andamento.TamponiTestMol),
-		ifmt(andamento.TotalePositiviTestAnt),
-		ifmt(andamento.TamponiTestAnt),
+		apiutil.Ifmt(andamento.Tamponi),
+		apiutil.Ifmt(andamento.CasiTestati),
+		apiutil.Ifmt(andamento.TotalePositiviTestMol),
+		apiutil.Ifmt(andamento.TamponiTestMol),
+		apiutil.Ifmt(andamento.TotalePositiviTestAnt),
+		apiutil.Ifmt(andamento.TamponiTestAnt),
 	)
 }
 
@@ -138,16 +138,16 @@ In isolamento domiciliare: *%s*
 Totale ospedalizzati: *%s*`,
 		regione.DenominazioneRegione,
 		formatTimestamp(regione.Data),
-		ifmt(regione.TotalePositivi),
+		apiutil.Ifmt(regione.TotalePositivi),
 		plus(regione.VariazioneTotalePositivi),
-		ifmt(regione.DimessiGuariti),
-		ifmt(regione.Deceduti),
-		ifmt(regione.TotaleCasi),
+		apiutil.Ifmt(regione.DimessiGuariti),
+		apiutil.Ifmt(regione.Deceduti),
+		apiutil.Ifmt(regione.TotaleCasi),
 		plus(regione.NuoviPositivi),
-		ifmt(regione.RicoveratiConSintomi),
-		ifmt(regione.TerapiaIntensiva),
-		ifmt(regione.IsolamentoDomiciliare),
-		ifmt(regione.TotaleOspedalizzati),
+		apiutil.Ifmt(regione.RicoveratiConSintomi),
+		apiutil.Ifmt(regione.TerapiaIntensiva),
+		apiutil.Ifmt(regione.IsolamentoDomiciliare),
+		apiutil.Ifmt(regione.TotaleOspedalizzati),
 	)
 }
 
@@ -163,12 +163,12 @@ Positivi al tampone antigenico: *%s*
 Tamponi antigenici totali: *%s*`,
 		regione.DenominazioneRegione,
 		formatTimestamp(regione.Data),
-		ifmt(regione.Tamponi),
-		ifmt(regione.CasiTestati),
-		ifmt(regione.TotalePositiviTestMol),
-		ifmt(regione.TamponiTestMol),
-		ifmt(regione.TotalePositiviTestAnt),
-		ifmt(regione.TamponiTestAnt),
+		apiutil.Ifmt(regione.Tamponi),
+		apiutil.Ifmt(regione.CasiTestati),
+		apiutil.Ifmt(regione.TotalePositiviTestMol),
+		apiutil.Ifmt(regione.TamponiTestMol),
+		apiutil.Ifmt(regione.TotalePositiviTestAnt),
+		apiutil.Ifmt(regione.TamponiTestAnt),
 	)
 }
 
@@ -214,7 +214,7 @@ Totale positivi: *%s*`,
 			data.DenominazioneProvincia,
 			data.DenominazioneRegione,
 			formatTimestamp(data.Data),
-			ifmt(data.TotaleCasi),
+			apiutil.Ifmt(data.TotaleCasi),
 		)
 
 		if data.Note != "" {
@@ -286,11 +286,7 @@ func formatNote(nota string, ntype NoteType) string {
 
 func plus(value int) string {
 	if value > 0 {
-		return "+" + ifmt(value)
+		return "+" + apiutil.Ifmt(value)
 	}
-	return ifmt(value)
-}
-
-func ifmt(i int) string {
-	return humanize.FormatInteger("#.###,", i)
+	return apiutil.Ifmt(value)
 }

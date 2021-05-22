@@ -19,16 +19,13 @@
 package c19
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
-	"net/http"
 	"os"
 	"sort"
 	"strings"
 
+	"github.com/NicoNex/covidtron-19000/apiutil"
 	"github.com/thedevsaddam/gojsonq/v2"
 )
 
@@ -43,42 +40,12 @@ const (
 var jsonpath string
 
 func Update() {
-	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s.json"
-	var files = [4]string{"andamento-nazionale-latest", "province-latest", "regioni-latest", "note"}
-
-	dir := fmt.Sprintf(jsonpath)
-	_, err := os.Stat(dir)
-	if err != nil {
-		os.Mkdir(dir, 0755)
-	}
+	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s"
+	var files = []string{"andamento-nazionale-latest.json", "province-latest.json", "regioni-latest.json", "note.json"}
 
 	for _, value := range files {
-		resp, err := http.Get(fmt.Sprintf(json_url, value))
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		defer resp.Body.Close()
-
-		content, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		fpath := fmt.Sprintf("%s/%s.json", jsonpath, value)
-		data, err := os.Create(fpath)
-
-		if err != nil {
-			log.Println(err)
-		}
-		defer data.Close()
-
-		_, err = io.Copy(data, bytes.NewReader(content))
-
-		if err != nil {
-			log.Println(err)
-		}
+		url := fmt.Sprintf(json_url, value)
+		apiutil.Update(url, jsonpath, value)
 	}
 }
 
