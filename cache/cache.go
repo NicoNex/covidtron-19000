@@ -28,7 +28,7 @@ import (
 type Cache struct {
 	botName      string
 	Sessions     []int64 `json:"sessions"`
-	LatestCommit string  `json:"latest_commit"`
+	Commits 	 Commits `json:"latest_commits"`
 }
 
 var cachepath string
@@ -87,12 +87,12 @@ func (c Cache) CountSessions() int {
 	return len(c.Sessions)
 }
 
-func (c Cache) GetLatestCommit() string {
-	return c.LatestCommit
+func (c Cache) GetCommits() Commits {
+	return c.Commits
 }
 
-func (c Cache) SaveLatestCommit(sha string) {
-	c.LatestCommit = sha
+func (c Cache) SaveCommits(commits Commits) {
+	c.Commits = commits
 	c.writeCache()
 }
 

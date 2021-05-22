@@ -25,9 +25,20 @@ import (
 	"net/http"
 )
 
+type Commits struct {
+    C19 string `json:"c19"`
+    Vax string `json:"vax"`
+}
 
-func (c Cache) GetSha() string {
-	resp, err := http.Get("https://api.github.com/repos/pcm-dpc/COVID-19/commits/master")
+func (c Cache) UpdateCommits() Commits {
+	return Commits{
+		C19: getSha("https://api.github.com/repos/pcm-dpc/COVID-19/commits/master"),
+		Vax: getSha("https://api.github.com/repos/italia/covid19-opendata-vaccini/commits/master"),
+	}
+}
+
+func getSha(url string) string {
+	resp, err := http.Get(url)
 
 	if err != nil {
 		log.Println(err)

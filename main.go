@@ -224,7 +224,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 
 	case text == "📥 Aggiorna dati" && isMaster(b.chatID):
 		b.SendMessage("Aggiornamento in corso...", b.chatID)
-		c19.Update()
+		updateData()
 		b.SendMessageWithKeyboard(
 			"Aggiornamento completato.",
 			b.chatID,
@@ -376,13 +376,14 @@ func ticker(tch <-chan time.Time) {
 func updateData() {
 	cc = cache.LoadCache(BOT_NAME)
 
-	sha := cc.GetSha()
-	latest := cc.GetLatestCommit()
+	latest := cc.UpdateCommits()
+	saved := cc.GetCommits()
 
-	if latest != sha {
+	if saved.C19 != latest.C19 {
 		c19.Update()
-		cc.SaveLatestCommit(sha)
 	}
+
+	cc.SaveCommits(latest)
 }
 
 func readToken() string {
