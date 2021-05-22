@@ -39,10 +39,10 @@ type Andamento struct {
 }
 
 type Regione struct {
-	DenominazioneRegione     string `json:"denominazione_regione"`
-	Note                     string `json:"note,omitempty"`
-	NoteCasi                 string `json:"note_casi,omitempty"`
-	NoteTest                 string `json:"note_test,omitempty"`
+	DenominazioneRegione string `json:"denominazione_regione"`
+	Note                 string `json:"note,omitempty"`
+	NoteCasi             string `json:"note_casi,omitempty"`
+	NoteTest             string `json:"note_test,omitempty"`
 	Andamento
 }
 

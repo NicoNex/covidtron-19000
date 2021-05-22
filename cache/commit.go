@@ -26,8 +26,8 @@ import (
 )
 
 type Commits struct {
-    C19 string `json:"c19"`
-    Vax string `json:"vax"`
+	C19 string `json:"c19"`
+	Vax string `json:"vax"`
 }
 
 func (c Cache) UpdateCommits() Commits {
@@ -46,7 +46,7 @@ func getSha(url string) string {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	
+
 	if err != nil {
 		log.Println(err)
 	}

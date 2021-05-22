@@ -19,52 +19,52 @@
 package apiutil
 
 import (
-    "bytes"
-    "fmt"
-    "io"
-    "log"
-    "net/http"
-    "os"
+	"bytes"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
 
-    "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 )
 
 func Update(url, path, filename string) {
-    dir := fmt.Sprintf(path)
-    _, err := os.Stat(dir)
+	dir := fmt.Sprintf(path)
+	_, err := os.Stat(dir)
 
-    if err != nil {
-        os.Mkdir(dir, 0755)
-    }
+	if err != nil {
+		os.Mkdir(dir, 0755)
+	}
 
-    resp, err := http.Get(url)
-    if err != nil {
-        log.Println(err)
-        return
-    }
-    defer resp.Body.Close()
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer resp.Body.Close()
 
-    content, err := io.ReadAll(resp.Body)
-    if err != nil {
-        log.Println(err)
-        return
-    }
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-    fpath := fmt.Sprintf("%s/%s", path, filename)
-    data, err := os.Create(fpath)
+	fpath := fmt.Sprintf("%s/%s", path, filename)
+	data, err := os.Create(fpath)
 
-    if err != nil {
-        log.Println(err)
-    }
-    defer data.Close()
+	if err != nil {
+		log.Println(err)
+	}
+	defer data.Close()
 
-    _, err = io.Copy(data, bytes.NewReader(content))
+	_, err = io.Copy(data, bytes.NewReader(content))
 
-    if err != nil {
-        log.Println(err)
-    }
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func Ifmt(i int) string {
-    return humanize.FormatInteger("#.###,", i)
+	return humanize.FormatInteger("#.###,", i)
 }

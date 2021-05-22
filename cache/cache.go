@@ -26,9 +26,9 @@ import (
 )
 
 type Cache struct {
-	botName      string
-	Sessions     []int64 `json:"sessions"`
-	Commits 	 Commits `json:"latest_commits"`
+	botName  string
+	Sessions []int64 `json:"sessions"`
+	Commits  Commits `json:"latest_commits"`
 }
 
 var cachepath string

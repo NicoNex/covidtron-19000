@@ -41,7 +41,12 @@ var jsonpath string
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s"
-	var files = []string{"andamento-nazionale-latest.json", "province-latest.json", "regioni-latest.json", "note.json"}
+	var files = []string{
+		"andamento-nazionale-latest.json",
+		"province-latest.json",
+		"regioni-latest.json",
+		"note.json",
+	}
 
 	for _, value := range files {
 		url := fmt.Sprintf(json_url, value)
