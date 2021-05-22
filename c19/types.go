@@ -27,8 +27,8 @@ type Andamento struct {
 	NuoviPositivi            int    `json:"nuovi_positivi"`
 	RicoveratiConSintomi     int    `json:"ricoverati_con_sintomi"`
 	Tamponi                  int    `json:"tamponi"`
-	TamponiTestMol           int    `json:"tamponi_test_molecolare"`
 	TamponiTestAnt           int    `json:"tamponi_test_antigenico_rapido"`
+	TamponiTestMol           int    `json:"tamponi_test_molecolare"`
 	TerapiaIntensiva         int    `json:"terapia_intensiva"`
 	TotaleCasi               int    `json:"totale_casi"`
 	TotaleOspedalizzati      int    `json:"totale_ospedalizzati"`
@@ -39,27 +39,11 @@ type Andamento struct {
 }
 
 type Regione struct {
-	CasiTestati              int    `json:"casi_testati"`
-	Data                     string `json:"data"`
-	Deceduti                 int    `json:"deceduti"`
 	DenominazioneRegione     string `json:"denominazione_regione"`
-	DimessiGuariti           int    `json:"dimessi_guariti"`
-	IsolamentoDomiciliare    int    `json:"isolamento_domiciliare"`
 	Note                     string `json:"note,omitempty"`
 	NoteCasi                 string `json:"note_casi,omitempty"`
 	NoteTest                 string `json:"note_test,omitempty"`
-	NuoviPositivi            int    `json:"nuovi_positivi"`
-	RicoveratiConSintomi     int    `json:"ricoverati_con_sintomi"`
-	TerapiaIntensiva         int    `json:"terapia_intensiva"`
-	TotaleCasi               int    `json:"totale_casi"`
-	TotaleOspedalizzati      int    `json:"totale_ospedalizzati"`
-	TotalePositivi           int    `json:"totale_positivi"`
-	TotalePositiviTestAnt    int    `json:"totale_positivi_test_antigenico_rapido"`
-	TotalePositiviTestMol    int    `json:"totale_positivi_test_molecolare"`
-	Tamponi                  int    `json:"tamponi"`
-	TamponiTestMol           int    `json:"tamponi_test_molecolare"`
-	TamponiTestAnt           int    `json:"tamponi_test_antigenico_rapido"`
-	VariazioneTotalePositivi int    `json:"variazione_totale_positivi"`
+	Andamento
 }
 
 type Provincia struct {
