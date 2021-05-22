@@ -27,32 +27,25 @@ import (
 	"github.com/NicoNex/covidtron-19000/apiutil"
 )
 
-var (
-	andamento Andamento
-	note      Nota
-	regione   *Regione
-	provincia Provincia
-)
-
 func GetAndamentoMsg() InfoMsg {
-	andamento = getAndamento()
-	note = getNote()
+	andamento := getAndamento()
+	note := getNote()
 
 	return InfoMsg{
-		Generale: getAndamentoGenerale(),
-		Tamponi:  getAndamentoTamponi(),
-		Note:     getAndamentoNote(),
+		Generale: getAndamentoGenerale(andamento),
+		Tamponi:  getAndamentoTamponi(andamento),
+		Note:     getAndamentoNote(andamento, note),
 	}
 }
 
 func GetRegioneMsg(regName string) InfoMsg {
-	regione = getRegione(regName)
+	regione := getRegione(regName)
 
 	if regione != nil {
 		return InfoMsg{
-			Generale: getRegioneGenerale(),
-			Tamponi:  getRegioneTamponi(),
-			Note:     getRegioneNote(),
+			Generale: getRegioneGenerale(regione),
+			Tamponi:  getRegioneTamponi(regione),
+			Note:     getRegioneNote(regione),
 		}
 	}
 
@@ -61,7 +54,7 @@ func GetRegioneMsg(regName string) InfoMsg {
 	}
 }
 
-func getAndamentoGenerale() string {
+func getAndamentoGenerale(andamento Andamento) string {
 	return fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_
 
@@ -88,7 +81,7 @@ Totale ospedalizzati: *%s*`,
 	)
 }
 
-func getAndamentoTamponi() string {
+func getAndamentoTamponi(andamento Andamento) string {
 	return fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_
 
@@ -108,7 +101,7 @@ Tamponi antigenici totali: *%s*`,
 	)
 }
 
-func getAndamentoNote() string {
+func getAndamentoNote(andamento Andamento, note Nota) string {
 	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_`,
 		formatTimestamp(andamento.Data),
@@ -123,7 +116,7 @@ _Dati aggiornati alle %s_`,
 	return msg
 }
 
-func getRegioneGenerale() string {
+func getRegioneGenerale(regione *Regione) string {
 	return fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_
 
@@ -151,7 +144,7 @@ Totale ospedalizzati: *%s*`,
 	)
 }
 
-func getRegioneTamponi() string {
+func getRegioneTamponi(regione *Regione) string {
 	return fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_
 
@@ -172,7 +165,7 @@ Tamponi antigenici totali: *%s*`,
 	)
 }
 
-func getRegioneNote() string {
+func getRegioneNote(regione *Regione) string {
 	note := false
 
 	msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
