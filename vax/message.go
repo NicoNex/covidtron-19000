@@ -28,7 +28,7 @@ import (
 
 func GetAndamentoMsg() string {
     ts := getTimestamp()
-    totV := getTotaleVaccinati("")
+    totV := getTotaleVaccinati()
     totS := getTotaleSomministrazioni()
 
     return fmt.Sprintf(`*Andamento Nazionale Vaccinazioni*
@@ -40,7 +40,7 @@ _(persone che hanno completato il ciclo vaccinale)_`,
         formatTimestamp(ts),
         apiutil.Ifmt(totS),
         apiutil.Ifmt(totV),
-        getTotalePercentuale(),
+        getTotalePercentuale(totV),
     )
 }
 

@@ -93,12 +93,12 @@ func getTotaleSomministrazioni() (sum int) {
 	return
 }
 
-func getTotalePercentuale() string {
-	percent := float32(getTotaleVaccinati("")) / 59257566 * 100
+func getTotalePercentuale(sum int) string {
+	percent := float32(sum) / 59257566 * 100
 	return fmt.Sprintf("%.2f%%", percent)
 }
 
-func getTotaleVaccinati(regName string) (sum int) {
+func getTotaleVaccinati() (sum int) {
 	var vaxData struct {
 		Data []Somministrazioni `json:"data"`
 	}
@@ -111,12 +111,10 @@ func getTotaleVaccinati(regName string) (sum int) {
 	json.Unmarshal(data, &vaxData)
 
 	for _, field := range vaxData.Data {
-		if regName == "" || Area[regName] == field.Area {
-			if field.Fornitore == "Janssen" {
-				sum += field.PrimaDose
-			} else {
-				sum += field.SecondaDose
-			}
+		if field.Fornitore == "Janssen" {
+			sum += field.PrimaDose
+		} else {
+			sum += field.SecondaDose
 		}
 	}
 
