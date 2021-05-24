@@ -19,15 +19,16 @@
 package vax
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"log"
 
 	"github.com/NicoNex/covidtron-19000/apiutil"
+	jsoniter "github.com/json-iterator/go"
 )
 
 var jsonpath string
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/italia/covid19-opendata-vaccini/master/dati/%s"

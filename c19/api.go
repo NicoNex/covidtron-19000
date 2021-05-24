@@ -19,7 +19,6 @@
 package c19
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
@@ -27,6 +26,7 @@ import (
 
 	"github.com/NicoNex/covidtron-19000/apiutil"
 	"github.com/thedevsaddam/gojsonq/v2"
+	jsoniter "github.com/json-iterator/go"
 )
 
 type NoteType uint8
@@ -38,6 +38,7 @@ const (
 )
 
 var jsonpath string
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func Update() {
 	var json_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-%s"
