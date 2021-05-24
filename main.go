@@ -27,6 +27,7 @@ import (
 
 	"github.com/NicoNex/covidtron-19000/c19"
 	"github.com/NicoNex/covidtron-19000/cache"
+	"github.com/NicoNex/covidtron-19000/vax"
 	"github.com/NicoNex/echotron/v2"
 )
 
@@ -43,9 +44,13 @@ type bot struct {
 }
 
 var (
-	andamento c19.InfoMsg
-	cc        *cache.Cache
-	regione   c19.InfoMsg
+	cc *cache.Cache
+
+	andamento    c19.InfoMsg
+	andamentoVax string
+
+	regione    c19.InfoMsg
+	regioneVax string
 
 	mainKbd = []echotron.KbdRow{
 		[]echotron.Button{
@@ -63,6 +68,7 @@ var (
 			{Text: "🧪 Tamponi", CallbackData: "andamento_tamponi"},
 		},
 		[]echotron.InlineButton{
+			{Text: "💉 Vaccini", CallbackData: "andamento_vaccini"},
 			{Text: "📋 Note", CallbackData: "andamento_note"},
 		},
 	}
@@ -73,6 +79,7 @@ var (
 			{Text: "🧪 Tamponi", CallbackData: "regione_tamponi"},
 		},
 		[]echotron.InlineButton{
+			{Text: "💉 Vaccini", CallbackData: "regione_vaccini"},
 			{Text: "📋 Note", CallbackData: "regione_note"},
 		},
 	}
@@ -106,7 +113,9 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 		b.sendCancel()
 
 	default:
-		regione = c19.GetRegioneMsg(extractText(update))
+		regName := extractText(update)
+		regione = c19.GetRegioneMsg(regName)
+		regioneVax = vax.GetRegioneMsg(regName)
 
 		if !strings.Contains(regione.Generale, "Errore") {
 			b.SendMessageWithKeyboard(
@@ -200,6 +209,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 
 	case text == "🇮🇹 Andamento nazionale":
 		andamento = c19.GetAndamentoMsg()
+		andamentoVax = vax.GetAndamentoMsg()
 
 		resp, err := b.SendMessageWithKeyboard(
 			andamento.Generale,
@@ -276,6 +286,15 @@ func (b bot) handleCallback(update *echotron.Update) {
 			echotron.ParseMarkdown,
 		)
 
+	case "andamento_vaccini":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			andamentoVax,
+			b.InlineKbdMarkup(andamentoKbd...),
+			echotron.ParseMarkdown,
+		)
+
 	case "andamento_note":
 		resp, err = b.EditMessageTextWithKeyboard(
 			b.chatID,
@@ -284,6 +303,7 @@ func (b bot) handleCallback(update *echotron.Update) {
 			b.InlineKbdMarkup(andamentoKbd...),
 			echotron.ParseMarkdown,
 		)
+
 	case "regione_generale":
 		resp, err = b.EditMessageTextWithKeyboard(
 			b.chatID,
@@ -299,6 +319,15 @@ func (b bot) handleCallback(update *echotron.Update) {
 			b.lastMsgID,
 			regione.Tamponi,
 			b.InlineKbdMarkup(regioneKbd...),
+			echotron.ParseMarkdown,
+		)
+
+	case "regione_vaccini":
+		resp, err = b.EditMessageTextWithKeyboard(
+			b.chatID,
+			b.lastMsgID,
+			regioneVax,
+			b.InlineKbdMarkup(andamentoKbd...),
 			echotron.ParseMarkdown,
 		)
 
@@ -392,6 +421,10 @@ func updateData() {
 
 	if saved.C19 != latest.C19 {
 		c19.Update()
+	}
+
+	if saved.Vax != latest.Vax {
+		vax.Update()
 	}
 
 	cc.SaveCommits(latest)
