@@ -54,9 +54,7 @@ func Update() {
 	}
 }
 
-func getAndamento() Andamento {
-	var data Andamento
-
+func getAndamento() (data Andamento) {
 	fpath := fmt.Sprintf("%s/andamento-nazionale-latest.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
@@ -64,12 +62,10 @@ func getAndamento() Andamento {
 
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
-	return data
+	return
 }
 
-func getRegione(regione string) *Regione {
-	var data Regione
-
+func getRegione(regione string) (data Regione) {
 	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
@@ -77,17 +73,15 @@ func getRegione(regione string) *Regione {
 		First()
 
 	if search == nil {
-		return nil
+		return
 	}
 
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
-	return &data
+	return
 }
 
-func GetRegioni() []string {
-	var data []string
-
+func GetRegioni() (data []string) {
 	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
 	search := gojsonq.New().
 		File(fpath).
@@ -99,12 +93,10 @@ func GetRegioni() []string {
 
 	sort.Strings(data)
 
-	return data
+	return
 }
 
-func getProvincia(provincia string) *Provincia {
-	var data Provincia
-
+func getProvincia(provincia string) (data Provincia) {
 	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
 
 	if strings.Contains(provincia, "(") {
@@ -117,17 +109,15 @@ func getProvincia(provincia string) *Provincia {
 		First()
 
 	if search == nil {
-		return nil
+		return
 	}
 
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
-	return &data
+	return
 }
 
-func GetProvince(regione string) []string {
-	var data []string
-
+func GetProvince(regione string) (data []string) {
 	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
 
 	searchProv := gojsonq.New().
@@ -148,12 +138,10 @@ func GetProvince(regione string) []string {
 
 	sort.Strings(data)
 
-	return data
+	return
 }
 
-func getNote() Nota {
-	var data Nota
-
+func getNote() (data Nota) {
 	fpath := fmt.Sprintf("%s/note.json", jsonpath)
 
 	search := gojsonq.New().
@@ -162,7 +150,7 @@ func getNote() Nota {
 
 	bytes, _ := json.Marshal(search)
 	json.Unmarshal(bytes, &data)
-	return data
+	return
 }
 
 func init() {

@@ -41,7 +41,7 @@ func GetAndamentoMsg() InfoMsg {
 func GetRegioneMsg(regName string) InfoMsg {
 	regione := getRegione(regName)
 
-	if regione != nil {
+	if regione != (Regione{}) {
 		return InfoMsg{
 			Generale: getRegioneGenerale(regione),
 			Tamponi:  getRegioneTamponi(regione),
@@ -116,7 +116,7 @@ _Dati aggiornati alle %s_`,
 	return msg
 }
 
-func getRegioneGenerale(regione *Regione) string {
+func getRegioneGenerale(regione Regione) string {
 	return fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_
 
@@ -144,7 +144,7 @@ Totale ospedalizzati: *%s*`,
 	)
 }
 
-func getRegioneTamponi(regione *Regione) string {
+func getRegioneTamponi(regione Regione) string {
 	return fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_
 
@@ -165,7 +165,7 @@ Tamponi antigenici totali: *%s*`,
 	)
 }
 
-func getRegioneNote(regione *Regione) string {
+func getRegioneNote(regione Regione) string {
 	note := false
 
 	msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
@@ -199,7 +199,7 @@ _Dati aggiornati alle %s_`,
 func GetProvinciaMsg(provincia string) string {
 	var data = getProvincia(provincia)
 
-	if data != nil {
+	if data != (Provincia{}) {
 		msg := fmt.Sprintf(`*Andamento COVID-19 - Provincia di %s (%s)*
 _Dati aggiornati alle %s_
 
