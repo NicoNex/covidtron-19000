@@ -54,7 +54,6 @@ type Vaccini struct {
 }
 
 type Somministrazioni struct {
-    Area                 string `json:"area"`
     DataSomministrazione string `json:"data_somministrazione"`
     Fornitore            string `json:"fornitore"`
     PrimaDose            int    `json:"prima_dose"`
