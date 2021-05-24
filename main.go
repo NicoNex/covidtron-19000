@@ -163,12 +163,23 @@ func (b bot) chooseProvincia(update *echotron.Update) stateFn {
 		return b.handleMessage
 
 	default:
+		kbd := c19.GetProvince(text)
+
+		if kbd != nil {
+			b.SendMessageWithKeyboard(
+				"Scegli una provincia.",
+				b.chatID,
+				b.KeyboardMarkup(true, false, false, generateKeyboard(kbd)...),
+			)
+			return b.handleProvincia
+		}
+
 		b.SendMessageWithKeyboard(
-			"Scegli una provincia.",
+			"Errore: Regione non trovata.",
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetProvince(text))...),
+			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
 		)
-		return b.handleProvincia
+		return b.handleMessage
 	}
 }
 
