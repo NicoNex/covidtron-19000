@@ -21,12 +21,13 @@ package c19
 import (
 	"fmt"
 	"os"
+	"path"
 	"sort"
 	"strings"
 
 	"github.com/NicoNex/covidtron-19000/apiutil"
-	"github.com/thedevsaddam/gojsonq/v2"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/thedevsaddam/gojsonq/v2"
 )
 
 type NoteType uint8
@@ -56,7 +57,7 @@ func Update() {
 }
 
 func getAndamento() (data Andamento) {
-	fpath := fmt.Sprintf("%s/andamento-nazionale-latest.json", jsonpath)
+	fpath := path.Join(jsonpath, "andamento-nazionale-latest.json")
 	search := gojsonq.New().
 		File(fpath).
 		First()
@@ -67,7 +68,7 @@ func getAndamento() (data Andamento) {
 }
 
 func getRegione(regione string) (data Regione) {
-	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
+	fpath := path.Join(jsonpath, "regioni-latest.json")
 	search := gojsonq.New().
 		File(fpath).
 		WhereContains("denominazione_regione", regione).
@@ -83,7 +84,7 @@ func getRegione(regione string) (data Regione) {
 }
 
 func GetRegioni() (data []string) {
-	fpath := fmt.Sprintf("%s/regioni-latest.json", jsonpath)
+	fpath := path.Join(jsonpath, "regioni-latest.json")
 	search := gojsonq.New().
 		File(fpath).
 		Pluck("denominazione_regione")
@@ -98,7 +99,7 @@ func GetRegioni() (data []string) {
 }
 
 func getProvincia(provincia string) (data Provincia) {
-	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
+	fpath := path.Join(jsonpath, "province-latest.json")
 
 	if strings.Contains(provincia, "(") {
 		provincia = provincia[:len(provincia)-5]
@@ -119,7 +120,7 @@ func getProvincia(provincia string) (data Provincia) {
 }
 
 func GetProvince(regione string) (data []string) {
-	fpath := fmt.Sprintf("%s/province-latest.json", jsonpath)
+	fpath := path.Join(jsonpath, "province-latest.json")
 
 	searchProv := gojsonq.New().
 		File(fpath).
@@ -143,7 +144,7 @@ func GetProvince(regione string) (data []string) {
 }
 
 func getNote() (data Nota) {
-	fpath := fmt.Sprintf("%s/note.json", jsonpath)
+	fpath := path.Join(jsonpath, "note.json")
 
 	search := gojsonq.New().
 		File(fpath).
