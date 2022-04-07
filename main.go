@@ -1,6 +1,6 @@
 /*
  * Covidtron-19000 - a bot for monitoring data about COVID-19.
- * Copyright (C) 2020-2021 Nicolò Santamaria, Michele Dimaggio.
+ * Copyright (C) 2020-2022 Nicolò Santamaria, Michele Dimaggio.
  *
  * Covidtron-19000 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ import (
 	"github.com/NicoNex/covidtron-19000/c19"
 	"github.com/NicoNex/covidtron-19000/cache"
 	"github.com/NicoNex/covidtron-19000/vax"
-	"github.com/NicoNex/echotron/v2"
+	"github.com/NicoNex/echotron/v3"
 )
 
 const BOT_NAME = "covidtron-19000"
@@ -52,45 +52,45 @@ var (
 	regione    c19.InfoMsg
 	regioneVax string
 
-	mainKbd = []echotron.KbdRow{
-		[]echotron.Button{
+	mainKbd = [][]echotron.KeyboardButton{
+		{
 			{Text: "🇮🇹 Andamento nazionale"},
 		},
-		[]echotron.Button{
+		{
 			{Text: "🏙 Dati regione"},
 			{Text: "🏢 Dati provincia"},
 		},
 	}
 
-	andamentoKbd = []echotron.InlineKbdRow{
-		[]echotron.InlineButton{
+	andamentoKbd = [][]echotron.InlineKeyboardButton{
+		{
 			{Text: "📊 Generale", CallbackData: "andamento_generale"},
 			{Text: "🧪 Tamponi", CallbackData: "andamento_tamponi"},
 		},
-		[]echotron.InlineButton{
+		{
 			{Text: "💉 Vaccini", CallbackData: "andamento_vaccini"},
 			{Text: "📋 Note", CallbackData: "andamento_note"},
 		},
 	}
 
-	regioneKbd = []echotron.InlineKbdRow{
-		[]echotron.InlineButton{
+	regioneKbd = [][]echotron.InlineKeyboardButton{
+		{
 			{Text: "📊 Generale", CallbackData: "regione_generale"},
 			{Text: "🧪 Tamponi", CallbackData: "regione_tamponi"},
 		},
-		[]echotron.InlineButton{
+		{
 			{Text: "💉 Vaccini", CallbackData: "regione_vaccini"},
 			{Text: "📋 Note", CallbackData: "regione_note"},
 		},
 	}
 
-	cancelBtn = echotron.KbdRow{
-		echotron.Button{Text: "❌ Annulla"},
+	cancelBtn = []echotron.KeyboardButton{
+		{Text: "❌ Annulla"},
 	}
 
-	masterKbd = echotron.KbdRow{
-		echotron.Button{Text: "📊 Utenti"},
-		echotron.Button{Text: "📥 Aggiorna dati"},
+	masterKbd = []echotron.KeyboardButton{
+		{Text: "📊 Utenti"},
+		{Text: "📥 Aggiorna dati"},
 	}
 
 	masters = []int64{41876271, 14870908}
@@ -118,17 +118,26 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 		regioneVax = vax.GetRegioneMsg(regName)
 
 		if !strings.Contains(regione.Generale, "Errore") {
-			b.SendMessageWithKeyboard(
+			b.SendMessage(
 				"Caricamento...",
 				b.chatID,
-				b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+				&echotron.MessageOptions{
+					ReplyMarkup: echotron.ReplyKeyboardMarkup{
+						Keyboard:       getMainKbd(b.chatID),
+						ResizeKeyboard: true,
+					},
+				},
 			)
 
-			resp, err := b.SendMessageWithKeyboard(
+			resp, err := b.SendMessage(
 				regione.Generale,
 				b.chatID,
-				b.InlineKbdMarkup(regioneKbd...),
-				echotron.ParseMarkdown,
+				&echotron.MessageOptions{
+					ParseMode: echotron.Markdown,
+					ReplyMarkup: echotron.InlineKeyboardMarkup{
+						InlineKeyboard: regioneKbd,
+					},
+				},
 			)
 
 			if err != nil {
@@ -137,10 +146,15 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 				b.lastMsgID = resp.Result.ID
 			}
 		} else {
-			b.SendMessageWithKeyboard(
+			b.SendMessage(
 				regione.Generale,
 				b.chatID,
-				b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+				&echotron.MessageOptions{
+					ReplyMarkup: echotron.ReplyKeyboardMarkup{
+						Keyboard:       getMainKbd(b.chatID),
+						ResizeKeyboard: true,
+					},
+				},
 			)
 		}
 	}
@@ -154,11 +168,16 @@ func (b bot) handleProvincia(update *echotron.Update) stateFn {
 		b.sendCancel()
 
 	default:
-		b.SendMessageWithKeyboard(
+		b.SendMessage(
 			c19.GetProvinciaMsg(extractText(update)),
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
-			echotron.ParseMarkdown,
+			&echotron.MessageOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.ReplyKeyboardMarkup{
+					Keyboard:       getMainKbd(b.chatID),
+					ResizeKeyboard: true,
+				},
+			},
 		)
 	}
 
@@ -175,18 +194,28 @@ func (b bot) chooseProvincia(update *echotron.Update) stateFn {
 		kbd := c19.GetProvince(text)
 
 		if kbd != nil {
-			b.SendMessageWithKeyboard(
+			b.SendMessage(
 				"Scegli una provincia.",
 				b.chatID,
-				b.KeyboardMarkup(true, false, false, generateKeyboard(kbd)...),
+				&echotron.MessageOptions{
+					ReplyMarkup: echotron.ReplyKeyboardMarkup{
+						Keyboard:       generateKeyboard(kbd),
+						ResizeKeyboard: true,
+					},
+				},
 			)
 			return b.handleProvincia
 		}
 
-		b.SendMessageWithKeyboard(
+		b.SendMessage(
 			"Errore: Regione non trovata.",
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+			&echotron.MessageOptions{
+				ReplyMarkup: echotron.ReplyKeyboardMarkup{
+					Keyboard:       getMainKbd(b.chatID),
+					ResizeKeyboard: true,
+				},
+			},
 		)
 		return b.handleMessage
 	}
@@ -194,10 +223,15 @@ func (b bot) chooseProvincia(update *echotron.Update) stateFn {
 
 func (b bot) sendUpgradeNotice() {
 	for _, id := range cc.GetSessions() {
-		b.SendMessageWithKeyboard(
+		b.SendMessage(
 			"Covidtron-19000 è stato aggiornato! Scopri subito le novità!",
 			id,
-			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+			&echotron.MessageOptions{
+				ReplyMarkup: echotron.ReplyKeyboardMarkup{
+					Keyboard:       getMainKbd(b.chatID),
+					ResizeKeyboard: true,
+				},
+			},
 		)
 	}
 }
@@ -211,11 +245,15 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		andamento = c19.GetAndamentoMsg()
 		andamentoVax = vax.GetAndamentoMsg()
 
-		resp, err := b.SendMessageWithKeyboard(
+		resp, err := b.SendMessage(
 			andamento.Generale,
 			b.chatID,
-			b.InlineKbdMarkup(andamentoKbd...),
-			echotron.ParseMarkdown,
+			&echotron.MessageOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: andamentoKbd,
+				},
+			},
 		)
 
 		if err != nil {
@@ -225,31 +263,46 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		}
 
 	case text == "🏙 Dati regione":
-		b.SendMessageWithKeyboard(
+		b.SendMessage(
 			"Scegli una regione.",
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetRegioni())...),
+			&echotron.MessageOptions{
+				ReplyMarkup: echotron.ReplyKeyboardMarkup{
+					Keyboard:       generateKeyboard(c19.GetRegioni()),
+					ResizeKeyboard: true,
+				},
+			},
 		)
 		return b.handleRegione
 
 	case text == "🏢 Dati provincia":
-		b.SendMessageWithKeyboard(
+		b.SendMessage(
 			"Scegli una regione.",
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, generateKeyboard(c19.GetRegioni())...),
+			&echotron.MessageOptions{
+				ReplyMarkup: echotron.ReplyKeyboardMarkup{
+					Keyboard:       generateKeyboard(c19.GetRegioni()),
+					ResizeKeyboard: true,
+				},
+			},
 		)
 		return b.chooseProvincia
 
 	case text == "📊 Utenti" && isMaster(b.chatID):
-		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatID)
+		b.SendMessage(fmt.Sprintf("Utenti: %d", cc.CountSessions()), b.chatID, nil)
 
 	case text == "📥 Aggiorna dati" && isMaster(b.chatID):
-		b.SendMessage("Aggiornamento in corso...", b.chatID)
+		b.SendMessage("Aggiornamento in corso...", b.chatID, nil)
 		updateData()
-		b.SendMessageWithKeyboard(
+		b.SendMessage(
 			"Aggiornamento completato.",
 			b.chatID,
-			b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+			&echotron.MessageOptions{
+				ReplyMarkup: echotron.ReplyKeyboardMarkup{
+					Keyboard:       getMainKbd(b.chatID),
+					ResizeKeyboard: true,
+				},
+			},
 		)
 
 	case text == "/notice" && isMaster(b.chatID):
@@ -264,80 +317,108 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 }
 
 func (b bot) handleCallback(update *echotron.Update) {
-	var resp echotron.APIResponseMessage
-	var err error
+	var (
+		resp echotron.APIResponseMessage
+		err  error
+
+		msgID = echotron.NewMessageID(b.chatID, b.lastMsgID)
+	)
 
 	switch update.CallbackQuery.Data {
 	case "andamento_generale":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			andamento.Generale,
-			b.InlineKbdMarkup(andamentoKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: andamentoKbd,
+				},
+			},
 		)
 
 	case "andamento_tamponi":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			andamento.Tamponi,
-			b.InlineKbdMarkup(andamentoKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: andamentoKbd,
+				},
+			},
 		)
 
 	case "andamento_vaccini":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			andamentoVax,
-			b.InlineKbdMarkup(andamentoKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: andamentoKbd,
+				},
+			},
 		)
 
 	case "andamento_note":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			andamento.Note,
-			b.InlineKbdMarkup(andamentoKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: andamentoKbd,
+				},
+			},
 		)
 
 	case "regione_generale":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			regione.Generale,
-			b.InlineKbdMarkup(regioneKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: regioneKbd,
+				},
+			},
 		)
 
 	case "regione_tamponi":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			regione.Tamponi,
-			b.InlineKbdMarkup(regioneKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: regioneKbd,
+				},
+			},
 		)
 
 	case "regione_vaccini":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			regioneVax,
-			b.InlineKbdMarkup(andamentoKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: regioneKbd,
+				},
+			},
 		)
 
 	case "regione_note":
-		resp, err = b.EditMessageTextWithKeyboard(
-			b.chatID,
-			b.lastMsgID,
+		resp, err = b.EditMessageText(
 			regione.Note,
-			b.InlineKbdMarkup(regioneKbd...),
-			echotron.ParseMarkdown,
+			msgID,
+			&echotron.MessageTextOptions{
+				ParseMode: echotron.Markdown,
+				ReplyMarkup: echotron.InlineKeyboardMarkup{
+					InlineKeyboard: regioneKbd,
+				},
+			},
 		)
 	}
 
@@ -347,12 +428,12 @@ func (b bot) handleCallback(update *echotron.Update) {
 		b.lastMsgID = resp.Result.ID
 	}
 
-	b.AnswerCallbackQuery(update.CallbackQuery.ID, "", false)
+	b.AnswerCallbackQuery(update.CallbackQuery.ID, nil)
 }
 
 func (b *bot) Update(update *echotron.Update) {
 	if extractText(update) == "/cancel" {
-		go b.SendMessage("Operazione annullata.", b.chatID)
+		go b.SendMessage("Operazione annullata.", b.chatID, nil)
 		b.state = b.handleMessage
 		return
 	}
@@ -361,7 +442,7 @@ func (b *bot) Update(update *echotron.Update) {
 }
 
 func (b bot) sendIntroduction() {
-	b.SendMessageWithKeyboard(`*Benvenuto su Covidtron-19000!*
+	b.SendMessage(`*Benvenuto su Covidtron-19000!*
 
 Covidtron-19000 ti aiuta a monitorare in tempo reale i dati sulla diffusione del COVID-19 in Italia condivisi dalla Protezione Civile.
 
@@ -370,36 +451,52 @@ Basato su [echotron](https://github.com/NicoNex/echotron).
 
 Icona creata da [Nhor Phai](https://www.flaticon.com/authors/nhor-phai) su [Flaticon](https://www.flaticon.com).`,
 		b.chatID,
-		b.InlineKbdMarkup(
-			b.InlineKbdRow(
-				b.InlineKbdBtnURL("☕️ Offrici un caffè", "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HPUYKM3VJ2QMN&source=url"),
-				b.InlineKbdBtnURL("👾 GitHub Repository", "https://github.com/NicoNex/covidtron-19000"),
-			),
-		),
-		echotron.ParseMarkdown,
-		echotron.DisableWebPagePreview,
+		&echotron.MessageOptions{
+			ParseMode:             echotron.Markdown,
+			DisableWebPagePreview: true,
+			ReplyMarkup: echotron.InlineKeyboardMarkup{
+				InlineKeyboard: [][]echotron.InlineKeyboardButton{
+					{
+						{Text: "☕️ Offrici un caffè", URL: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HPUYKM3VJ2QMN&source=url"},
+						{Text: "👾 GitHub Repository", URL: "https://github.com/NicoNex/covidtron-19000"},
+					},
+				},
+			},
+		},
 	)
 
-	b.SendMessageWithKeyboard("Seleziona un'opzione.", b.chatID, b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...))
+	b.SendMessage(
+		"Seleziona un'opzione.",
+		b.chatID,
+		&echotron.MessageOptions{
+			ReplyMarkup: echotron.ReplyKeyboardMarkup{
+				Keyboard:       getMainKbd(b.chatID),
+				ResizeKeyboard: true,
+			},
+		},
+	)
 }
 
 func (b bot) sendCancel() {
-	b.SendMessageWithKeyboard(
+	b.SendMessage(
 		"Operazione annullata.",
 		b.chatID,
-		b.KeyboardMarkup(true, false, false, getMainKbd(b.chatID)...),
+		&echotron.MessageOptions{
+			ReplyMarkup: echotron.ReplyKeyboardMarkup{
+				Keyboard:       getMainKbd(b.chatID),
+				ResizeKeyboard: true,
+			},
+		},
 	)
 }
 
-func generateKeyboard(values []string) []echotron.KbdRow {
-	var kbd []echotron.KbdRow
-
+func generateKeyboard(values []string) (kbd [][]echotron.KeyboardButton) {
 	for i, v := range values {
 		if i%2 == 0 {
-			kbd = append(kbd, []echotron.Button{})
+			kbd = append(kbd, []echotron.KeyboardButton{})
 		}
 
-		kbd[len(kbd)-1] = append(kbd[len(kbd)-1], echotron.Button{Text: v})
+		kbd[len(kbd)-1] = append(kbd[len(kbd)-1], echotron.KeyboardButton{Text: v})
 	}
 
 	return append(kbd, cancelBtn)
@@ -457,7 +554,7 @@ func isMaster(chatID int64) bool {
 	return false
 }
 
-func getMainKbd(chatID int64) []echotron.KbdRow {
+func getMainKbd(chatID int64) [][]echotron.KeyboardButton {
 	if isMaster(chatID) {
 		return append(mainKbd, masterKbd)
 	}
