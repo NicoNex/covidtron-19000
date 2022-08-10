@@ -54,8 +54,8 @@ type Vaccini struct {
 }
 
 type Somministrazioni struct {
-    DataSomministrazione string `json:"data_somministrazione"`
-    Fornitore            string `json:"fornitore"`
-    PrimaDose            int    `json:"prima_dose"`
-    SecondaDose          int    `json:"seconda_dose"`
+    DataSomministrazione string `json:"data"`
+    Fornitore            string `json:"forn"`
+    PrimaDose            int    `json:"d1"`
+    SecondaDose          int    `json:"d2"`
 }
