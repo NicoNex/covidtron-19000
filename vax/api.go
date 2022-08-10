@@ -20,8 +20,8 @@ package vax
 
 import (
 	"fmt"
-	"os"
 	"log"
+	"os"
 
 	"github.com/NicoNex/covidtron-19000/apiutil"
 	jsoniter "github.com/json-iterator/go"
@@ -62,7 +62,7 @@ func getTimestamp() string {
 
 func getVaxData() []Vaccini {
 	var vaxData struct {
-    	Data []Vaccini `json:"data"`
+		Data []Vaccini `json:"data"`
 	}
 
 	data, err := os.ReadFile(fmt.Sprintf("%s/vaccini-summary-latest.json", jsonpath))

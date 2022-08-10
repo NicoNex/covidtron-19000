@@ -19,43 +19,43 @@
 package vax
 
 var Area = map[string]string{
-    "Abruzzo":               "ABR",
-    "Basilicata":            "BAS",
-    "Calabria":              "CAL",
-    "Campania":              "CAM",
-    "Emilia-Romagna":        "EMR",
-    "Friuli Venezia Giulia": "FVG",
-    "Lazio":                 "LAZ",
-    "Liguria":               "LIG",
-    "Lombardia":             "LOM",
-    "Marche":                "MAR",
-    "Molise":                "MOL",
-    "P.A. Bolzano":          "PAB",
-    "P.A. Trento":           "PAT",
-    "Piemonte":              "PIE",
-    "Puglia":                "PUG",
-    "Sardegna":              "SAR",
-    "Sicilia":               "SIC",
-    "Toscana":               "TOS",
-    "Umbria":                "UMB",
-    "Valle d'Aosta":         "VDA",
-    "Veneto":                "VEN",
+	"Abruzzo":               "ABR",
+	"Basilicata":            "BAS",
+	"Calabria":              "CAL",
+	"Campania":              "CAM",
+	"Emilia-Romagna":        "EMR",
+	"Friuli Venezia Giulia": "FVG",
+	"Lazio":                 "LAZ",
+	"Liguria":               "LIG",
+	"Lombardia":             "LOM",
+	"Marche":                "MAR",
+	"Molise":                "MOL",
+	"P.A. Bolzano":          "PAB",
+	"P.A. Trento":           "PAT",
+	"Piemonte":              "PIE",
+	"Puglia":                "PUG",
+	"Sardegna":              "SAR",
+	"Sicilia":               "SIC",
+	"Toscana":               "TOS",
+	"Umbria":                "UMB",
+	"Valle d'Aosta":         "VDA",
+	"Veneto":                "VEN",
 }
 
 type LastUpdate struct {
-    Timestamp string `json:"ultimo_aggiornamento"`
+	Timestamp string `json:"ultimo_aggiornamento"`
 }
 
 type Vaccini struct {
-    Area              string  `json:"area"`
-    DosiConsegnate    int     `json:"dosi_consegnate"`
-    DosiSomministrate int     `json:"dosi_somministrate"`
-    Percentuale       float32 `json:"percentuale_somministrazione"`
+	Area              string  `json:"area"`
+	DosiConsegnate    int     `json:"dosi_consegnate"`
+	DosiSomministrate int     `json:"dosi_somministrate"`
+	Percentuale       float32 `json:"percentuale_somministrazione"`
 }
 
 type Somministrazioni struct {
-    DataSomministrazione string `json:"data"`
-    Fornitore            string `json:"forn"`
-    PrimaDose            int    `json:"d1"`
-    SecondaDose          int    `json:"d2"`
+	DataSomministrazione string `json:"data"`
+	Fornitore            string `json:"forn"`
+	PrimaDose            int    `json:"d1"`
+	SecondaDose          int    `json:"d2"`
 }

@@ -19,44 +19,44 @@
 package vax
 
 import (
-    "fmt"
-    "log"
-    "time"
+	"fmt"
+	"log"
+	"time"
 
-    "github.com/NicoNex/covidtron-19000/apiutil"
+	"github.com/NicoNex/covidtron-19000/apiutil"
 )
 
 func GetAndamentoMsg() string {
-    ts := getTimestamp()
-    totV := getTotaleVaccinati()
-    totS := getTotaleSomministrazioni()
+	ts := getTimestamp()
+	totV := getTotaleVaccinati()
+	totS := getTotaleSomministrazioni()
 
-    return fmt.Sprintf(`*Andamento Nazionale Vaccinazioni*
+	return fmt.Sprintf(`*Andamento Nazionale Vaccinazioni*
 _Dati aggiornati alle %s_
 
 Totale somministrazioni: *%s*
 Totale persone vaccinate: *%s* (*%s*)
 _(persone che hanno completato il ciclo vaccinale)_`,
-        apiutil.FormatTimestamp(ts, true),
-        apiutil.Ifmt(totS),
-        apiutil.Ifmt(totV),
-        getTotalePercentuale(totV),
-    )
+		apiutil.FormatTimestamp(ts, true),
+		apiutil.Ifmt(totS),
+		apiutil.Ifmt(totV),
+		getTotalePercentuale(totV),
+	)
 }
 
 func GetRegioneMsg(regName string) string {
-    ts := getTimestamp()
-    data := getRegione(regName)
+	ts := getTimestamp()
+	data := getRegione(regName)
 
-    return fmt.Sprintf(`*Andamento Vaccinazioni - Regione %s*
+	return fmt.Sprintf(`*Andamento Vaccinazioni - Regione %s*
 _Dati aggiornati alle %s_
 
 Dosi consegnate: *%s*
 Dosi somministrate: *%s* (*%.1f%%*)`,
-        regName,
-        apiutil.FormatTimestamp(ts, true),
-        apiutil.Ifmt(data.DosiConsegnate),
-        apiutil.Ifmt(data.DosiSomministrate),
-        data.Percentuale,
-    )
+		regName,
+		apiutil.FormatTimestamp(ts, true),
+		apiutil.Ifmt(data.DosiConsegnate),
+		apiutil.Ifmt(data.DosiSomministrate),
+		data.Percentuale,
+	)
 }
