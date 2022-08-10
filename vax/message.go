@@ -37,7 +37,7 @@ _Dati aggiornati alle %s_
 Totale somministrazioni: *%s*
 Totale persone vaccinate: *%s* (*%s*)
 _(persone che hanno completato il ciclo vaccinale)_`,
-        formatTimestamp(ts),
+        apiutil.FormatTimestamp(ts, true),
         apiutil.Ifmt(totS),
         apiutil.Ifmt(totV),
         getTotalePercentuale(totV),
@@ -54,21 +54,9 @@ _Dati aggiornati alle %s_
 Dosi consegnate: *%s*
 Dosi somministrate: *%s* (*%.1f%%*)`,
         regName,
-        formatTimestamp(ts),
+        apiutil.FormatTimestamp(ts, true),
         apiutil.Ifmt(data.DosiConsegnate),
         apiutil.Ifmt(data.DosiSomministrate),
         data.Percentuale,
     )
-}
-
-func formatTimestamp(timestamp string) string {
-    tp, err := time.Parse(time.RFC3339, timestamp)
-
-    if err != nil {
-        log.Println(err)
-    }
-
-    tz, _ := time.LoadLocation("Europe/Rome")
-
-    return tp.In(tz).Format("15:04 del 02/01/2006")
 }

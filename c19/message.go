@@ -20,9 +20,7 @@ package c19
 
 import (
 	"fmt"
-	"log"
 	"strings"
-	"time"
 
 	"github.com/NicoNex/covidtron-19000/apiutil"
 )
@@ -67,7 +65,7 @@ Ricoverati con sintomi: *%s*
 In terapia intensiva: *%s*
 In isolamento domiciliare: *%s*
 Totale ospedalizzati: *%s*`,
-		formatTimestamp(andamento.Data),
+		apiutil.FormatTimestamp(andamento.Data, false),
 		apiutil.Ifmt(andamento.TotalePositivi),
 		plus(andamento.VariazioneTotalePositivi),
 		apiutil.Ifmt(andamento.DimessiGuariti),
@@ -91,7 +89,7 @@ Positivi al tampone molecolare: *%s*
 Tamponi molecolari totali: *%s*
 Positivi al tampone antigenico: *%s*
 Tamponi antigenici totali: *%s*`,
-		formatTimestamp(andamento.Data),
+		apiutil.FormatTimestamp(andamento.Data, false),
 		apiutil.Ifmt(andamento.Tamponi),
 		apiutil.Ifmt(andamento.CasiTestati),
 		apiutil.Ifmt(andamento.TotalePositiviTestMol),
@@ -104,7 +102,7 @@ Tamponi antigenici totali: *%s*`,
 func getAndamentoNote(andamento Andamento, note Nota) string {
 	msg := fmt.Sprintf(`*Andamento Nazionale COVID-19*
 _Dati aggiornati alle %s_`,
-		formatTimestamp(andamento.Data),
+		apiutil.FormatTimestamp(andamento.Data, false),
 	)
 
 	if note.Data == andamento.Data {
@@ -130,7 +128,7 @@ In terapia intensiva: *%s*
 In isolamento domiciliare: *%s*
 Totale ospedalizzati: *%s*`,
 		regione.DenominazioneRegione,
-		formatTimestamp(regione.Data),
+		apiutil.FormatTimestamp(regione.Data, false),
 		apiutil.Ifmt(regione.TotalePositivi),
 		plus(regione.VariazioneTotalePositivi),
 		apiutil.Ifmt(regione.DimessiGuariti),
@@ -155,7 +153,7 @@ Tamponi molecolari totali: *%s*
 Positivi al tampone antigenico: *%s*
 Tamponi antigenici totali: *%s*`,
 		regione.DenominazioneRegione,
-		formatTimestamp(regione.Data),
+		apiutil.FormatTimestamp(regione.Data, false),
 		apiutil.Ifmt(regione.Tamponi),
 		apiutil.Ifmt(regione.CasiTestati),
 		apiutil.Ifmt(regione.TotalePositiviTestMol),
@@ -171,7 +169,7 @@ func getRegioneNote(regione Regione) string {
 	msg := fmt.Sprintf(`*Andamento COVID-19 - Regione %s*
 _Dati aggiornati alle %s_`,
 		regione.DenominazioneRegione,
-		formatTimestamp(regione.Data),
+		apiutil.FormatTimestamp(regione.Data, false),
 	)
 
 	if regione.Note != "" {
@@ -206,7 +204,7 @@ _Dati aggiornati alle %s_
 Totale positivi: *%s*`,
 			data.DenominazioneProvincia,
 			data.DenominazioneRegione,
-			formatTimestamp(data.Data),
+			apiutil.FormatTimestamp(data.Data, false),
 			apiutil.Ifmt(data.TotaleCasi),
 		)
 
@@ -218,16 +216,6 @@ Totale positivi: *%s*`,
 	} else {
 		return "Errore: Provincia non trovata."
 	}
-}
-
-func formatTimestamp(timestamp string) string {
-	tp, err := time.Parse(time.RFC3339, timestamp+"Z")
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	return tp.Format("15:04 del 02/01/2006")
 }
 
 func formatNote(nota string, ntype NoteType) string {

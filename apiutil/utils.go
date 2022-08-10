@@ -25,6 +25,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/dustin/go-humanize"
 )
@@ -67,4 +68,25 @@ func Update(url, path, filename string) {
 
 func Ifmt(i int) string {
 	return humanize.FormatInteger("#.###,", i)
+}
+
+func FormatTimestamp(timestamp string, tzFix bool) (fmtTime string) {
+	if !tzFix {
+		timestamp += "Z"
+	}
+
+	tp, err := time.Parse(time.RFC3339, timestamp)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	if tzFix {
+		tz, _ := time.LoadLocation("Europe/Rome")
+		fmtTime = tp.In(tz).Format("15:04 del 02/01/2006")
+	} else {
+		fmtTime = tp.Format("15:04 del 02/01/2006")
+	}
+
+	return fmtTime
 }
