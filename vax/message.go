@@ -20,8 +20,6 @@ package vax
 
 import (
 	"fmt"
-	"log"
-	"time"
 
 	"github.com/NicoNex/covidtron-19000/apiutil"
 )
