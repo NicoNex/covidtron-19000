@@ -113,6 +113,8 @@ func (b bot) handleRegione(update *echotron.Update) stateFn {
 		b.sendCancel()
 
 	default:
+		b.SendChatAction(echotron.Typing, b.chatID)
+
 		regName := extractText(update)
 		regione = c19.GetRegioneMsg(regName)
 		regioneVax = vax.GetRegioneMsg(regName)
@@ -168,6 +170,8 @@ func (b bot) handleProvincia(update *echotron.Update) stateFn {
 		b.sendCancel()
 
 	default:
+		b.SendChatAction(echotron.Typing, b.chatID)
+
 		b.SendMessage(
 			c19.GetProvinciaMsg(extractText(update)),
 			b.chatID,
@@ -242,6 +246,8 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 		b.sendIntroduction()
 
 	case text == "🇮🇹 Andamento nazionale":
+		b.SendChatAction(echotron.Typing, b.chatID)
+
 		andamento = c19.GetAndamentoMsg()
 		andamentoVax = vax.GetAndamentoMsg()
 
@@ -293,6 +299,7 @@ func (b bot) handleMessage(update *echotron.Update) stateFn {
 
 	case text == "📥 Aggiorna dati" && isMaster(b.chatID):
 		b.SendMessage("Aggiornamento in corso...", b.chatID, nil)
+		b.SendChatAction(echotron.Typing, b.chatID)
 		updateData()
 		b.SendMessage(
 			"Aggiornamento completato.",
