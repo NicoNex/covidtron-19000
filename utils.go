@@ -60,11 +60,11 @@ func updateData() {
 	latest := cc.UpdateCommits()
 	saved := cc.GetCommits()
 
-	if saved.C19 != latest.C19 {
+	if saved.C19 != latest.C19 && latest.C19 != "" {
 		c19.Update()
 	}
 
-	if saved.Vax != latest.Vax {
+	if saved.Vax != latest.Vax && latest.Vax != "" {
 		vax.Update()
 	}
 

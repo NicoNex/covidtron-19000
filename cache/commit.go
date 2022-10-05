@@ -42,6 +42,7 @@ func getSha(url string) string {
 
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 	defer resp.Body.Close()
 
@@ -49,6 +50,7 @@ func getSha(url string) string {
 
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 
 	var gh struct {
@@ -58,6 +60,7 @@ func getSha(url string) string {
 
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 
 	return gh.Sha
